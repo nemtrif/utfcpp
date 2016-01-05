@@ -32,6 +32,19 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
+    // simple static assert technique
+    template <class Iterator>
+    struct is_not_utf8_iterator  // specialised in other files
+    {
+        static void must_be_true() {} // will check if function exists, at compile time
+    };
+
+    template <class Iterator>
+    inline void check_is_not_a_utf8_iterator( Iterator const& )
+    {
+        is_not_utf8_iterator<Iterator>::is_true();
+    }
+
     // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
     // You may need to change them to match your system.
     // These typedefs have the same names as ones from cstdint, or boost/cstdint
@@ -99,6 +112,8 @@ namespace internal
     inline typename std::iterator_traits<octet_iterator>::difference_type
     sequence_length(octet_iterator lead_it)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         uint8_t lead = utf8::internal::mask8(*lead_it);
         if (lead < 0x80)
             return 1;
@@ -137,6 +152,8 @@ namespace internal
     template <typename octet_iterator>
     utf_error increase_safely(octet_iterator& it, octet_iterator end)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         if (++it == end)
             return NOT_ENOUGH_ROOM;
 
@@ -152,6 +169,8 @@ namespace internal
     template <typename octet_iterator>
     utf_error get_sequence_1(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         if (it == end)
             return NOT_ENOUGH_ROOM;
 
@@ -163,6 +182,8 @@ namespace internal
     template <typename octet_iterator>
     utf_error get_sequence_2(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         if (it == end) 
             return NOT_ENOUGH_ROOM;
         
@@ -178,6 +199,8 @@ namespace internal
     template <typename octet_iterator>
     utf_error get_sequence_3(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         if (it == end)
             return NOT_ENOUGH_ROOM;
             
@@ -197,6 +220,8 @@ namespace internal
     template <typename octet_iterator>
     utf_error get_sequence_4(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         if (it == end)
            return NOT_ENOUGH_ROOM;
 
@@ -222,6 +247,8 @@ namespace internal
     template <typename octet_iterator>
     utf_error validate_next(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         // Save the original value of it so we can go back in case of failure
         // Of course, it does not make much sense with i.e. stream iterators
         octet_iterator original_it = it;
@@ -273,6 +300,8 @@ namespace internal
 
     template <typename octet_iterator>
     inline utf_error validate_next(octet_iterator& it, octet_iterator end) {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         uint32_t ignored;
         return utf8::internal::validate_next(it, end, ignored);
     }
@@ -287,6 +316,8 @@ namespace internal
     template <typename octet_iterator>
     octet_iterator find_invalid(octet_iterator start, octet_iterator end)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         octet_iterator result = start;
         while (result != end) {
             utf8::internal::utf_error err_code = utf8::internal::validate_next(result, end);
@@ -299,12 +330,16 @@ namespace internal
     template <typename octet_iterator>
     inline bool is_valid(octet_iterator start, octet_iterator end)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         return (utf8::find_invalid(start, end) == end);
     }
 
     template <typename octet_iterator>
     inline bool starts_with_bom (octet_iterator it, octet_iterator end)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         return (
             ((it != end) && (utf8::internal::mask8(*it++)) == bom[0]) &&
             ((it != end) && (utf8::internal::mask8(*it++)) == bom[1]) &&
@@ -316,6 +351,8 @@ namespace internal
     template <typename octet_iterator>
     inline bool is_bom (octet_iterator it)
     {
+        is_not_utf8_iterator<octet_iterator>::must_be_true();
+
         return (
             (utf8::internal::mask8(*it++)) == bom[0] &&
             (utf8::internal::mask8(*it++)) == bom[1] &&

@@ -37,6 +37,8 @@ namespace utf8
         template <typename octet_iterator>
         octet_iterator append(uint32_t cp, octet_iterator result)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             if (cp < 0x80)                        // one octet
                 *(result++) = static_cast<uint8_t>(cp);  
             else if (cp < 0x800) {                // two octets
@@ -60,6 +62,8 @@ namespace utf8
         template <typename octet_iterator>
         uint32_t next(octet_iterator& it)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             uint32_t cp = utf8::internal::mask8(*it);
             typename std::iterator_traits<octet_iterator>::difference_type length = utf8::internal::sequence_length(it);
             switch (length) {
@@ -91,12 +95,16 @@ namespace utf8
         template <typename octet_iterator>
         uint32_t peek_next(octet_iterator it)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             return utf8::unchecked::next(it);    
         }
 
         template <typename octet_iterator>
         uint32_t prior(octet_iterator& it)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             while (utf8::internal::is_trail(*(--it))) ;
             octet_iterator temp = it;
             return utf8::unchecked::next(temp);
@@ -106,12 +114,16 @@ namespace utf8
         template <typename octet_iterator>
         inline uint32_t previous(octet_iterator& it)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             return utf8::unchecked::prior(it);
         }
 
         template <typename octet_iterator, typename distance_type>
         void advance (octet_iterator& it, distance_type n)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             for (distance_type i = 0; i < n; ++i)
                 utf8::unchecked::next(it);
         }
@@ -120,6 +132,8 @@ namespace utf8
         typename std::iterator_traits<octet_iterator>::difference_type
         distance (octet_iterator first, octet_iterator last)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             typename std::iterator_traits<octet_iterator>::difference_type dist;
             for (dist = 0; first < last; ++dist) 
                 utf8::unchecked::next(first);
@@ -129,6 +143,8 @@ namespace utf8
         template <typename u16bit_iterator, typename octet_iterator>
         octet_iterator utf16to8 (u16bit_iterator start, u16bit_iterator end, octet_iterator result)
         {       
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             while (start != end) {
                 uint32_t cp = utf8::internal::mask16(*start++);
             // Take care of surrogate pairs first
@@ -144,6 +160,8 @@ namespace utf8
         template <typename u16bit_iterator, typename octet_iterator>
         u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_iterator result)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             while (start < end) {
                 uint32_t cp = utf8::unchecked::next(start);
                 if (cp > 0xffff) { //make a surrogate pair
@@ -159,6 +177,8 @@ namespace utf8
         template <typename octet_iterator, typename u32bit_iterator>
         octet_iterator utf32to8 (u32bit_iterator start, u32bit_iterator end, octet_iterator result)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             while (start != end)
                 result = utf8::unchecked::append(*(start++), result);
 
@@ -168,6 +188,8 @@ namespace utf8
         template <typename octet_iterator, typename u32bit_iterator>
         u32bit_iterator utf8to32 (octet_iterator start, octet_iterator end, u32bit_iterator result)
         {
+            is_not_utf8_iterator<octet_iterator>::must_be_true();
+
             while (start < end)
                 (*result++) = utf8::unchecked::next(start);
 
@@ -221,6 +243,14 @@ namespace utf8
           }; // class iterator
 
     } // namespace utf8::unchecked
+
+
+    template <typename octet_iterator>
+    struct is_not_utf8_iterator< unchecked::iterator<octet_iterator> >
+    {
+        // empty class, no is_true() method so will get compile time error
+    };
+
 } // namespace utf8 
 
 
