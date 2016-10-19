@@ -257,8 +257,17 @@ namespace utf8
     template <typename octet_iterator, typename u32bit_iterator>
     u32bit_iterator utf8to32 (octet_iterator start, octet_iterator end, u32bit_iterator result)
     {
-        while (start < end)
-            (*result++) = utf8::next(start, end);
+        uint32_t ch1, ch2;
+        while (start < end) {
+            ch1 = utf8::next(start, end);
+            if (internal::is_lead_surrogate(ch1) && start < end) {
+                ch2 = utf8::next(start, end);
+                *(result++) = ((ch1 - internal::LEAD_SURROGATE_MIN) << 10) + ch2 - internal::TRAIL_SURROGATE_MIN;
+            }
+            else {
+                *(result++) = ch1;
+            }
+        }
 
         return result;
     }
