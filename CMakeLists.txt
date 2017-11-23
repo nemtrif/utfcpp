@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.8.0)
 project (utf8cpp)
 include_directories ("${PROJECT_SOURCE_DIR}/source")
 
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/source/ DESTINATION include/utfcpp)
+
 add_executable(smoke ${PROJECT_SOURCE_DIR}/test_drivers/smoke_test/test.cpp)
 add_executable(negative ${PROJECT_SOURCE_DIR}/test_drivers/negative/negative.cpp)
 add_executable(utf8reader ${PROJECT_SOURCE_DIR}/test_drivers/utf8reader/utf8reader.cpp)
