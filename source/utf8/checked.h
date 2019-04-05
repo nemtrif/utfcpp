@@ -71,6 +71,12 @@ namespace utf8
 
     template <typename octet_iterator>
     octet_iterator append(uint32_t cp, octet_iterator result)
+    #ifdef __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wunknown-sanitizers"
+            __attribute__((no_sanitize("implicit-integer-sign-change")))
+        #pragma clang diagnostic pop
+    #endif
     {
         if (!utf8::internal::is_code_point_valid(cp))
             throw invalid_code_point(cp);
