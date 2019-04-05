@@ -29,10 +29,26 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_FOR_CPP_CHECKED_H_2675DCD0_9480_4c0c_B92A_CC14C027B731
 
 #include "core.h"
-#include <stdexcept>
+
+#ifndef UTFCPP_USE_EXCEPTIONS
+  #if defined(_MSC_VER) && defined(_CPPUNWIND)
+    #define UTFCPP_USE_EXCEPTIONS 1
+  #elif !defined(_MSC_VER) && defined(__cpp_exceptions)
+    #define UTFCPP_USE_EXCEPTIONS 1
+  #else 
+    #define UTFCPP_USE_EXCEPTIONS 0
+  #endif
+#endif
+
+#if UTFCPP_USE_EXCEPTIONS
+  #include <stdexcept>
+#else
+  #include <cassert>
+#endif
 
 namespace utf8
 {
+#if UTFCPP_USE_EXCEPTIONS
     // Base for the exceptions that may be thrown from the library
     class exception : public ::std::exception {
     };
@@ -67,13 +83,20 @@ namespace utf8
         virtual const char* what() const throw() { return "Not enough space"; }
     };
 
+    #define UTFCPP_ERROR(Exception, AssertMsg) throw Exception
+    #define UTFCPP_THROW(Exception, Message) throw Exception(Message)
+#else 
+    #define UTFCPP_ERROR(Exception, AssertMsg) assert(AssertMsg && false)
+    #define UTFCPP_THROW(Exception, Message) assert(Message && false)
+#endif
+
     /// The library API - functions intended to be called by the users
 
     template <typename octet_iterator>
     octet_iterator append(uint32_t cp, octet_iterator result)
     {
         if (!utf8::internal::is_code_point_valid(cp))
-            throw invalid_code_point(cp);
+            UTFCPP_ERROR(invalid_code_point(cp), "invalid code point");
 
         if (cp < 0x80)                        // one octet
             *(result++) = static_cast<uint8_t>(cp);
@@ -144,13 +167,13 @@ namespace utf8
             case internal::UTF8_OK :
                 break;
             case internal::NOT_ENOUGH_ROOM :
-                throw not_enough_room();
+                UTFCPP_ERROR(not_enough_room(), "not enough room");
             case internal::INVALID_LEAD :
             case internal::INCOMPLETE_SEQUENCE :
             case internal::OVERLONG_SEQUENCE :
-                throw invalid_utf8(*it);
+                UTFCPP_ERROR(invalid_utf8(*it), "invalid utf8");
             case internal::INVALID_CODE_POINT :
-                throw invalid_code_point(cp);
+                UTFCPP_ERROR(invalid_code_point(cp), "invalid code point");
         }
         return cp;
     }
@@ -166,13 +189,13 @@ namespace utf8
     {
         // can't do much if it == start
         if (it == start)
-            throw not_enough_room();
+            UTFCPP_ERROR(not_enough_room(), "not enough room");
 
         octet_iterator end = it;
         // Go back until we hit either a lead octet or start
         while (utf8::internal::is_trail(*(--it)))
             if (it == start)
-                throw invalid_utf8(*it); // error - no lead byte in the sequence
+                UTFCPP_ERROR(invalid_utf8(*it), "no lead byte in the sequence");
         return utf8::peek_next(it, end);
     }
 
@@ -183,7 +206,7 @@ namespace utf8
         octet_iterator end = it;
         while (utf8::internal::is_trail(*(--it)))
             if (it == pass_start)
-                throw invalid_utf8(*it); // error - no lead byte in the sequence
+                UTFCPP_ERROR(invalid_utf8(*it), "no lead byte in the sequence");
         octet_iterator temp = it;
         return utf8::next(temp, end);
     }
@@ -217,15 +240,18 @@ namespace utf8
                     if (utf8::internal::is_trail_surrogate(trail_surrogate))
                         cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
                     else
-                        throw invalid_utf16(static_cast<uint16_t>(trail_surrogate));
+                        UTFCPP_ERROR(invalid_utf16(static_cast<uint16_t>(trail_surrogate)),
+                            "invalid utf16");
                 }
                 else
-                    throw invalid_utf16(static_cast<uint16_t>(cp));
+                    UTFCPP_ERROR(invalid_utf16(static_cast<uint16_t>(cp)),
+                        "invalid utf16");
 
             }
             // Lone trail surrogate
             else if (utf8::internal::is_trail_surrogate(cp))
-                throw invalid_utf16(static_cast<uint16_t>(cp));
+                UTFCPP_ERROR(invalid_utf16(static_cast<uint16_t>(cp)),
+                    "invalid utf16");
 
             result = utf8::append(cp, result);
         }
@@ -279,7 +305,7 @@ namespace utf8
                it(octet_it), range_start(rangestart), range_end(rangeend)
       {
           if (it < range_start || it > range_end)
-              throw std::out_of_range("Invalid utf-8 iterator position");
+              UTFCPP_THROW(std::out_of_range, "Invalid utf-8 iterator position"); 
       }
       // the default "big three" are OK
       octet_iterator base () const { return it; }
@@ -291,7 +317,7 @@ namespace utf8
       bool operator == (const iterator& rhs) const
       {
           if (range_start != rhs.range_start || range_end != rhs.range_end)
-              throw std::logic_error("Comparing utf-8 iterators defined with different ranges");
+              UTFCPP_THROW(std::logic_error, "Comparing utf-8 iterators defined with different ranges");
           return (it == rhs.it);
       }
       bool operator != (const iterator& rhs) const
@@ -323,6 +349,11 @@ namespace utf8
     }; // class iterator
 
 } // namespace utf8
+
+
+#undef UTFCPP_USE_EXCEPTIONS
+#undef UTFCPP_ERROR
+#undef UTFCPP_THROW
 
 #endif //header guard
 
