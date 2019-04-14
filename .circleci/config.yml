@@ -1,0 +1,11 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: nemtrif/utf8cpp:3.0
+    steps:
+      - checkout
+      - run: cmake . -B build
+      - run: cmake --build build
+      - run: cd build && ctest -VV
