@@ -20,7 +20,7 @@ if(UTF8_INSTALL)
         set(DEF_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/utf8cpp)
     endif()
 
-    install(DIRECTORY source/ DESTINATION include/utf8cpp)
+    install(DIRECTORY source/ DESTINATION include)
     install(TARGETS utf8cpp EXPORT utf8cppConfig)
     install(EXPORT utf8cppConfig DESTINATION ${DEF_INSTALL_CMAKE_DIR})
 endif()
