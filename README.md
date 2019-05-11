@@ -9,6 +9,42 @@ In order to easily handle UTF-8 encoded Unicode strings, I came up with a small,
 
 The purpose of this article is not to offer an introduction to Unicode in general, and UTF-8 in particular. If you are not familiar with Unicode, be sure to check out [Unicode Home Page](http://www.unicode.org/) or some other source of information for Unicode. Also, it is not my aim to advocate the use of UTF-8 encoded strings in C++ programs; if you want to handle UTF-8 encoded strings from C++, I am sure you have good reasons for it.
 
+## Build
+
+UTF8-CPP is a header-only library. However, if you want to build the unit tests, you will need to make [googletest](https://github.com/google/googletest) available to CMake.
+You have two possibilities to fetch those dependencies:
+* Using `git-submodule`, run the command below at the root of the project.
+```
+git submodule update --init
+```
+* Using [Conan, a C++ package manager](https://conan.io/), make sure you have access to `conan-center` and then run `conan install` in the build directory.
+
+```
+# conan search -r all gtest/1.8*
+Existing package recipes:
+Remote 'conan-center':
+gtest/1.8.0@bincrafters/stable
+gtest/1.8.1@bincrafters/stable
+```
+
+```
+mkdir build-dir
+cd build-dir
+conan install .. --build=missing
+```
+
+Then, build the project using CMake.
+```
+cmake -DCMAKE_INSTALL_PREFIX="$(pwd)/root" ..
+make
+make test
+make install
+```
+The CMake project provides the following options:
+- `UTF8_TESTS`: enable the unit tests (default value: `On`).
+- `UTF8_INSTALL`: enable the installation (default value: `On`). You can change the prefix's default value by setting the variable `CMAKE_INSTALL_PREFIX`.
+- `UTF8_SAMPLES`: enable the build of samples (default value: `On`).
+
 ## Examples of use
 
 ### Introductionary Sample
