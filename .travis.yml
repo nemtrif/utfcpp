@@ -1,0 +1,28 @@
+os: linux
+sudo: required
+dist: xenial
+language: cpp
+
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports
+    packages:
+      - python3
+      - python3-setuptools
+      - python3-pip
+      - cmake-data
+      - cmake
+
+script:
+  - python --version
+  - python3 --version
+  - sudo -H pip3 install --upgrade pip
+  - sudo -H pip3 install -U conan
+  - conan
+  - conan --version
+  - mkdir build-dir && cd build-dir && conan install .. --build=missing --settings compiler.libcxx=libstdc++11
+  - cmake -DCMAKE_INSTALL_PREFIX="$(pwd)/root" ..
+  - make
+  - make test
+  - make install
