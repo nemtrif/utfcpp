@@ -98,6 +98,37 @@ namespace utf8
         }
 
         template <typename octet_iterator>
+        uint32_t peek(octet_iterator it)
+        {
+            uint32_t cp = utf8::internal::mask8(*it);
+            typename std::iterator_traits<octet_iterator>::difference_type length = utf8::internal::sequence_length(it);
+            switch (length) {
+                case 1:
+                    break;
+                case 2:
+                    it++;
+                    cp = ((cp << 6) & 0x7ff) + ((*it) & 0x3f);
+                    break;
+                case 3:
+                    ++it; 
+                    cp = ((cp << 12) & 0xffff) + ((utf8::internal::mask8(*it) << 6) & 0xfff);
+                    ++it;
+                    cp += (*it) & 0x3f;
+                    break;
+                case 4:
+                    ++it;
+                    cp = ((cp << 18) & 0x1fffff) + ((utf8::internal::mask8(*it) << 12) & 0x3ffff);                
+                    ++it;
+                    cp += (utf8::internal::mask8(*it) << 6) & 0xfff;
+                    ++it;
+                    cp += (*it) & 0x3f;
+                    break;
+            }
+            ::std::advance(it, -(length-1));
+            return cp;
+        }
+
+        template <typename octet_iterator>
         uint32_t next(octet_iterator& it)
         {
             uint32_t cp = utf8::internal::mask8(*it);
@@ -226,8 +257,7 @@ namespace utf8
             octet_iterator base () const { return it; }
             uint32_t operator * () const
             {
-                octet_iterator temp = it;
-                return utf8::unchecked::next(temp);
+                return utf8::unchecked::peek(it);
             }
             bool operator == (const iterator& rhs) const 
             { 
