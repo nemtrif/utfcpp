@@ -34,65 +34,75 @@ DEALINGS IN THE SOFTWARE.
 namespace utf8
 {
 
+#if UTF_CPP_CPLUSPLUS >= 201703L
+    using string_t    = std::string_view;
+    using u16string_t = std::u16string_view;
+    using u32string_t = std::u32string_view;
+#else
+    using string_t    = const std::string &;
+    using u16string_t = const std::u16string &;
+    using u32string_t = const std::u32string &;
+#endif
+
     inline void append(char32_t cp, std::string& s)
     {
         append(uint32_t(cp), std::back_inserter(s));
     }
 
-    inline std::string utf16to8(const std::u16string& s)
+    inline std::string utf16to8(u16string_t s)
     {
         std::string result;
         utf16to8(s.begin(), s.end(), std::back_inserter(result));
         return result;
     }
 
-    inline std::u16string utf8to16(const std::string& s)
+    inline std::u16string utf8to16(string_t s)
     {
         std::u16string result;
         utf8to16(s.begin(), s.end(), std::back_inserter(result));
         return result;
     }
 
-    inline std::string utf32to8(const std::u32string& s)
+    inline std::string utf32to8(u32string_t s)
     {
         std::string result;
         utf32to8(s.begin(), s.end(), std::back_inserter(result));
         return result;
     }
 
-    inline std::u32string utf8to32(const std::string& s)
+    inline std::u32string utf8to32(string_t s)
     {
         std::u32string result;
         utf8to32(s.begin(), s.end(), std::back_inserter(result));
         return result;
     }
 
-    inline std::size_t find_invalid(const std::string& s)
+    inline std::size_t find_invalid(string_t s)
     {
-        std::string::const_iterator invalid = find_invalid(s.begin(), s.end());
+        const auto invalid = find_invalid(s.begin(), s.end());
         return (invalid == s.end()) ? std::string::npos : (invalid - s.begin());
     }
 
-    inline bool is_valid(const std::string& s)
+    inline bool is_valid(string_t s)
     {
         return is_valid(s.begin(), s.end());
     }
 
-    inline std::string replace_invalid(const std::string& s, char32_t replacement)
+    inline std::string replace_invalid(string_t s, char32_t replacement)
     {
         std::string result;
         replace_invalid(s.begin(), s.end(), std::back_inserter(result), replacement);
         return result;
     }
 
-    inline std::string replace_invalid(const std::string& s)
+    inline std::string replace_invalid(string_t s)
     {
         std::string result;
         replace_invalid(s.begin(), s.end(), std::back_inserter(result));
         return result;
     }
 
-    inline bool starts_with_bom(const std::string& s)
+    inline bool starts_with_bom(string_t s)
     {
         return starts_with_bom(s.begin(), s.end());
     }
