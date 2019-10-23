@@ -261,31 +261,32 @@ namespace utf8
             }
           }; // class iterator
           
-        //the iterator2 class
+        //the iterator8 class
         template <typename octet_iterator>
-        class iterator2 : public utf8::internal::iterator2<octet_iterator> {
+        class iterator8 : public utf8::internal::iterator_base<octet_iterator> {
         private:
-		  template <typename T>
-		  struct N {
-			  uint32_t operator()(T& o, T) const {
-				  return utf8::unchecked::next(o);
-           }
-        };
-		  constexpr static N<octet_iterator> NEXT{};
+          template <typename T>
+          struct N {
+            uint32_t operator()(T& o, T) const {
+                return utf8::unchecked::next(o);
+            }
+          };
+
+          constexpr static N<octet_iterator> NEXT{};
 
         public:
-			 using Base = utf8::internal::iterator2<octet_iterator>;
-          iterator2 () {}
-          iterator2 (octet_iterator begin, octet_iterator end): Base{begin, end, NEXT} {}
-        }; // class iterator2
+          using Base = utf8::internal::iterator_base<octet_iterator>;
+          iterator8 () {}
+          iterator8 (octet_iterator begin, octet_iterator end): Base{begin, end, NEXT} {}
+        }; // class iterator8
 
         template <typename octet_iterator>
-        inline bool operator==(const iterator2<octet_iterator>& a, const iterator2<octet_iterator>& b)
+        inline bool operator==(const iterator8<octet_iterator>& a, const iterator8<octet_iterator>& b)
         {
             return a.equals(b);
         }
         template <typename octet_iterator>
-        inline bool operator!=(const iterator2<octet_iterator>& a, const iterator2<octet_iterator>& b)
+        inline bool operator!=(const iterator8<octet_iterator>& a, const iterator8<octet_iterator>& b)
         {
             return !a.equals(b);
         }         

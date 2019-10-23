@@ -298,17 +298,17 @@ namespace internal
         return utf8::internal::validate_next(it, end, ignored);
     }
 
-    //the iterator2 class
+    //the iterator_base class
     template <typename octet_iterator>
-    class iterator2 : public std::iterator <std::input_iterator_tag, uint32_t> {
-    public:
+    class iterator_base : public std::iterator <std::input_iterator_tag, uint32_t> {
+    protected:
 	   using function = std::function<uint32_t(octet_iterator&, octet_iterator)>;
     private:
       uint32_t cp{};
       octet_iterator p{};
       const octet_iterator end{};
       bool ok{};
-	   const function func{};
+      const function func{};
       
       void read()
       {
@@ -319,12 +319,12 @@ namespace internal
           }
       }
     public:
-      iterator2 () {}
-      iterator2 (octet_iterator begin_, octet_iterator end_, function f): p{begin_}, end{end_}, func{f} { read(); }
+      iterator_base () {}
+      iterator_base (octet_iterator begin_, octet_iterator end_, function f): p{begin_}, end{end_}, func{f} { read(); }
       uint32_t operator * () const { return cp; }
       uint32_t* operator -> () const { return &cp; }
       
-      iterator2& operator ++ ()
+      iterator_base& operator ++ ()
       {
           if(!ok)
           {
@@ -333,22 +333,22 @@ namespace internal
           read();
           return *this;
       }
-      iterator2 operator ++ (int)
+      iterator_base operator ++ (int)
       {
           if(!ok)
           {
               throw std::runtime_error("no such element");
           }
-          iterator2 tmp = *this;
+          iterator_base tmp = *this;
           read();
           return tmp;
       }
       
-      bool equals(const iterator2& a) const
+      bool equals(const iterator_base& a) const
       {
           return ok == a.ok && (!ok || p == a.p);
       }
-    }; // class iterator2
+    }; // class iterator_base
 
 } // namespace internal
 
