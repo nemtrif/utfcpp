@@ -263,64 +263,31 @@ namespace utf8
           
         //the iterator2 class
         template <typename octet_iterator>
-        class iterator2 : public std::iterator <std::input_iterator_tag, uint32_t> {
+        class iterator2 : public utf8::internal::iterator2<octet_iterator> {
         private:
-          uint32_t cp{};
-          octet_iterator p{};
-          const octet_iterator e{};
-          bool ok{};
-          
-          void read()
-          {
-            ok = p != e;
-            if(ok)
-            {
-              cp = utf8::unchecked::next(p);
-            }
-          }
+		  template <typename T>
+		  struct N {
+			  uint32_t operator()(T& o, T) const {
+				  return utf8::unchecked::next(o);
+           }
+        };
+		  constexpr static N<octet_iterator> NEXT{};
+
         public:
+			 using Base = utf8::internal::iterator2<octet_iterator>;
           iterator2 () {}
-          iterator2 (octet_iterator begin, octet_iterator end): p{begin}, e{end} { read(); }
-          iterator2 (const iterator2& a): cp{a.cp}, p{a.p}, e{a.e}, ok{a.ok} {}
-          
-          uint32_t operator * () const { return cp; }
-          uint32_t* operator -> () const { return &cp; }
-          
-          iterator2& operator ++ ()
-          {
-            if(!ok)
-            {
-              throw std::runtime_error("no such element");
-            }
-            read();
-            return *this;
-          }
-          iterator2 operator ++ (int)
-          {
-             if(!ok)
-             {
-               throw std::runtime_error("no such element");
-             }
-             iterator2 tmp = *this;
-             read();
-             return tmp;
-          }
-          
-          bool equals(const iterator2& a) const
-          {
-            return ok == a.ok && (!ok || p == a.p);
-          }
+          iterator2 (octet_iterator begin, octet_iterator end): Base{begin, end, NEXT} {}
         }; // class iterator2
 
         template <typename octet_iterator>
         inline bool operator==(const iterator2<octet_iterator>& a, const iterator2<octet_iterator>& b)
         {
-          return a.equals(b);
+            return a.equals(b);
         }
         template <typename octet_iterator>
         inline bool operator!=(const iterator2<octet_iterator>& a, const iterator2<octet_iterator>& b)
         {
-          return !a.equals(b);
+            return !a.equals(b);
         }         
 
     } // namespace utf8::unchecked

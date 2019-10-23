@@ -318,6 +318,27 @@ namespace utf8
       }
     }; // class iterator
 
+    //the iterator2 class
+    template <typename octet_iterator>
+    class iterator2 : public utf8::internal::iterator2<octet_iterator> {
+  
+    public:
+  	   using Base = utf8::internal::iterator2<octet_iterator>;
+  	   iterator2 () {}
+  	   iterator2 (octet_iterator begin, octet_iterator end): Base{begin, end, utf8::next<octet_iterator>} {}
+    }; // class iterator2
+  
+    template <typename octet_iterator>
+    inline bool operator==(const iterator2<octet_iterator>& a, const iterator2<octet_iterator>& b)
+    {
+  	     return a.equals(b);
+    }
+    template <typename octet_iterator>
+    inline bool operator!=(const iterator2<octet_iterator>& a, const iterator2<octet_iterator>& b)
+    {
+  	     return !a.equals(b);
+    }         
+
 } // namespace utf8
 
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
