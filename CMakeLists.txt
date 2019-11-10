@@ -1,9 +1,12 @@
-cmake_minimum_required (VERSION 3.0.2)
+cmake_minimum_required (VERSION 3.1.3)
 project (utf8cpp VERSION 3.1 LANGUAGES CXX)
 
 option(UTF8_TESTS "Enable tests for UTF8-CPP" On)
 option(UTF8_INSTALL "Enable installation for UTF8-CPP" On)
 option(UTF8_SAMPLES "Enable building samples for UTF8-CPP" On)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(utf8cpp INTERFACE)
 target_include_directories(utf8cpp INTERFACE
