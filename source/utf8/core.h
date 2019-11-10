@@ -59,6 +59,10 @@ namespace utf8
 // Helper code - not intended to be directly called by the library users. May be changed at any time
 namespace internal
 {
+    // Trait which is true iff the iterator has at least the given category
+    template<typename iterator, typename category>
+    using is_iterator_category = std::is_convertible<typename std::iterator_traits<iterator>::iterator_category, category>;
+
     // Unicode constants
     // Leading (high) surrogates: 0xd800 - 0xdbff
     // Trailing (low) surrogates: 0xdc00 - 0xdfff

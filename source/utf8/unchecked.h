@@ -218,6 +218,7 @@ namespace utf8
         // The iterator class
         template <typename octet_iterator>
           class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> { 
+            static_assert(internal::is_iterator_category<octet_iterator, std::bidirectional_iterator_tag>::value, "Bidirectional iterator is required");
             octet_iterator it;
             public:
             iterator () {}

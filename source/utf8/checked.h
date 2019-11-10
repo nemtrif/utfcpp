@@ -158,12 +158,14 @@ namespace utf8
     template <typename octet_iterator>
     uint32_t peek_next(octet_iterator it, octet_iterator end)
     {
+        static_assert(internal::is_iterator_category<octet_iterator, std::bidirectional_iterator_tag>::value, "Using a non-bidirectional iterator eats its input");
         return utf8::next(it, end);
     }
 
     template <typename octet_iterator>
     uint32_t prior(octet_iterator& it, octet_iterator start)
     {
+        static_assert(internal::is_iterator_category<octet_iterator, std::bidirectional_iterator_tag>::value, "Bidirectional iterator is required");
         // can't do much if it == start
         if (it == start)
             throw not_enough_room();
@@ -264,16 +266,13 @@ namespace utf8
     namespace internal
     {
         template<typename iterator>
-        using is_random_access_iterator = std::is_same<typename std::iterator_traits<iterator>::iterator_category, std::random_access_iterator_tag>;
-
-        template<typename iterator>
-        typename std::enable_if<is_random_access_iterator<iterator>::value, bool>::type
+        typename std::enable_if<is_iterator_category<iterator, std::random_access_iterator_tag>::value, bool>::type
             assert_iterator_in_range(const iterator& it, const iterator& rangestart, const iterator& rangeend){
             return it >= rangestart && it <= rangeend;
         }
 
         template<typename iterator>
-        typename std::enable_if<!is_random_access_iterator<iterator>::value, bool>::type
+        typename std::enable_if<!is_iterator_category<iterator, std::random_access_iterator_tag>::value, bool>::type
             assert_iterator_in_range(const iterator&, const iterator&, const iterator&){
             return true; // Cannot check
         }
