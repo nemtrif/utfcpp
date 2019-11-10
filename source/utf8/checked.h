@@ -261,62 +261,161 @@ namespace utf8
         return result;
     }
 
-    // The iterator class
-    template <typename octet_iterator>
-    class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> {
-      octet_iterator it;
-      octet_iterator range_start;
-      octet_iterator range_end;
-      public:
-      iterator () {}
-      explicit iterator (const octet_iterator& octet_it,
-                         const octet_iterator& rangestart,
-                         const octet_iterator& rangeend) :
-               it(octet_it), range_start(rangestart), range_end(rangeend)
-      {
-          if (it < range_start || it > range_end)
-              throw std::out_of_range("Invalid utf-8 iterator position");
-      }
-      // the default "big three" are OK
-      octet_iterator base () const { return it; }
-      uint32_t operator * () const
-      {
-          octet_iterator temp = it;
-          return utf8::next(temp, range_end);
-      }
-      bool operator == (const iterator& rhs) const
-      {
-          if (range_start != rhs.range_start || range_end != rhs.range_end)
-              throw std::logic_error("Comparing utf-8 iterators defined with different ranges");
-          return (it == rhs.it);
-      }
-      bool operator != (const iterator& rhs) const
-      {
-          return !(operator == (rhs));
-      }
-      iterator& operator ++ ()
-      {
-          utf8::next(it, range_end);
-          return *this;
-      }
-      iterator operator ++ (int)
-      {
-          iterator temp = *this;
-          utf8::next(it, range_end);
-          return temp;
-      }
-      iterator& operator -- ()
-      {
-          utf8::prior(it, range_start);
-          return *this;
-      }
-      iterator operator -- (int)
-      {
-          iterator temp = *this;
-          utf8::prior(it, range_start);
-          return temp;
-      }
-    }; // class iterator
+    namespace internal
+    {
+        template<typename iterator>
+        using is_random_access_iterator = std::is_same<typename std::iterator_traits<iterator>::iterator_category, std::random_access_iterator_tag>;
+
+        template<typename iterator>
+        typename std::enable_if<is_random_access_iterator<iterator>::value, bool>::type
+            assert_iterator_in_range(const iterator& it, const iterator& rangestart, const iterator& rangeend){
+            return it >= rangestart && it <= rangeend;
+        }
+
+        template<typename iterator>
+        typename std::enable_if<!is_random_access_iterator<iterator>::value, bool>::type
+            assert_iterator_in_range(const iterator&, const iterator&, const iterator&){
+            return true; // Cannot check
+        }
+
+        template <typename octet_iterator>
+        class bidirectional_iterator {
+            octet_iterator it;
+            octet_iterator range_start;
+            octet_iterator range_end;
+        public:
+            using iterator_category = std::bidirectional_iterator_tag;
+            using value_type = uint32_t;
+            using difference_type = std::ptrdiff_t;
+            using pointer = uint32_t*;
+            using reference = uint32_t&;
+
+            explicit bidirectional_iterator(const octet_iterator& octet_it,
+                const octet_iterator& rangestart,
+                const octet_iterator& rangeend):
+                it(octet_it), range_start(rangestart), range_end(rangeend)
+            {
+                if(!internal::assert_iterator_in_range(octet_it, rangestart, rangeend))
+                    throw std::out_of_range("Invalid utf-8 iterator position");
+            }
+            // the default "big three" are OK
+            octet_iterator base() const { return it; }
+            uint32_t operator * () const
+            {
+                octet_iterator temp = it;
+                return utf8::next(temp, range_end);
+            }
+            bool operator == (const bidirectional_iterator& rhs) const
+            {
+                if(range_start != rhs.range_start || range_end != rhs.range_end)
+                    throw std::logic_error("Comparing utf-8 iterators defined with different ranges");
+                return (it == rhs.it);
+            }
+            bool operator != (const bidirectional_iterator& rhs) const
+            {
+                return !(operator == (rhs));
+            }
+            bidirectional_iterator& operator ++ ()
+            {
+                utf8::next(it, range_end);
+                return *this;
+            }
+            bidirectional_iterator operator ++ (int)
+            {
+                bidirectional_iterator temp = *this;
+                utf8::next(it, range_end);
+                return temp;
+            }
+            bidirectional_iterator& operator-- ()
+            {
+                utf8::prior(it, range_start);
+                return *this;
+            }
+            bidirectional_iterator operator -- (int)
+            {
+                bidirectional_iterator temp = *this;
+                utf8::prior(it, range_start);
+                return temp;
+            }
+        };
+
+        template <typename octet_iterator>
+        class input_iterator {
+            octet_iterator it;
+            octet_iterator range_start;
+            octet_iterator range_end;
+            uint32_t curValue;
+            utf_error error;
+        public:
+            using iterator_category = std::input_iterator_tag;
+            using value_type = uint32_t;
+            using difference_type = std::ptrdiff_t;
+            using pointer = uint32_t*;
+            using reference = uint32_t&;
+
+            explicit input_iterator(const octet_iterator& octet_it,
+                const octet_iterator& rangestart,
+                const octet_iterator& rangeend):
+                it(octet_it), range_start(rangestart), range_end(rangeend), curValue(0), error(it == range_end ? NOT_ENOUGH_ROOM : UTF8_OK)
+            {
+                get_val();
+            }
+            // the default "big three" are OK
+            octet_iterator base() const { return it; }
+            uint32_t operator * () const
+            {
+                switch(error) {
+                case internal::UTF8_OK:
+                    break;
+                case internal::NOT_ENOUGH_ROOM:
+                    throw not_enough_room();
+                case internal::INVALID_LEAD:
+                case internal::INCOMPLETE_SEQUENCE:
+                case internal::OVERLONG_SEQUENCE:
+                    throw invalid_utf8(*it);
+                case internal::INVALID_CODE_POINT:
+                    throw invalid_code_point(curValue);
+                }
+                return curValue;
+            }
+            bool operator == (const input_iterator& rhs) const
+            {
+                if(range_start != rhs.range_start || range_end != rhs.range_end)
+                    throw std::logic_error("Comparing utf-8 iterators defined with different ranges");
+                return (error == rhs.error) && (it == rhs.it);
+            }
+            bool operator != (const input_iterator& rhs) const
+            {
+                return !(operator == (rhs));
+            }
+            input_iterator& operator ++ ()
+            {
+                get_val();
+                return *this;
+            }
+            input_iterator operator ++ (int)
+            {
+                input_iterator temp = *this;
+                get_val();
+                return temp;
+            }
+        private:
+            void get_val(){
+                if(error == UTF8_OK){
+                    error = validate_next(it, range_end, curValue);
+                }
+            }
+        };
+        template<typename octet_iterator>
+        struct GetIterator
+        {
+            static bidirectional_iterator<octet_iterator> get(std::bidirectional_iterator_tag);
+            static input_iterator<octet_iterator> get(std::input_iterator_tag);
+            using type = decltype(get(typename std::iterator_traits<octet_iterator>::iterator_category{}));
+        };
+    }
+    template<typename octet_iterator>
+    using iterator = typename internal::GetIterator<octet_iterator>::type;
 
 } // namespace utf8
 
