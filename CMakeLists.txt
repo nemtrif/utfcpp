@@ -32,6 +32,8 @@ endif()
 
 if(UTF8_TESTS)
     enable_testing()
+    set(INSTALL_GTEST OFF CACHE INTERNAL "")
+    set(gtest_force_shared_crt ON CACHE INTERNAL "Need to use shared DLL for MSVC to avoid conflicts when linking")
     add_subdirectory(extern/gtest)
     add_subdirectory(tests)
 endif()
