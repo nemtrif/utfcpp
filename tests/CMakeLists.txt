@@ -30,7 +30,6 @@ target_compile_options(noexceptionstests PUBLIC -fno-exceptions)
 
 set_target_properties(negative
                       PROPERTIES
-                      CXX_STANDARD 98
                       CXX_STANDARD_REQUIRED YES
                       CXX_EXTENSIONS NO)
 
