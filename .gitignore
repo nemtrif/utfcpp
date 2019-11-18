@@ -2,3 +2,12 @@
 .vscode/
 # Often used by CMake 
 build/
+*.cmake
+CMakeCache.txt
+CMakeFiles
+Makefile
+docsample
+apitests
+cpp11
+negative
+noexceptionstests
