@@ -29,6 +29,8 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_FOR_CPP_UNCHECKED_H_2675DCD0_9480_4c0c_B92A_CC14C027B731
 
 #include "core.h"
+#include "cpp11_facilities.h"
+#include <utility>
 
 namespace utf8
 {
@@ -98,7 +100,7 @@ namespace utf8
         }
 
         template <typename octet_iterator>
-        uint32_t next(octet_iterator& it)
+        uint32_t next_impl(octet_iterator& it)
         {
             uint32_t cp = utf8::internal::mask8(*it);
             typename std::iterator_traits<octet_iterator>::difference_type length = utf8::internal::sequence_length(it);
@@ -124,8 +126,14 @@ namespace utf8
                     cp += (*it) & 0x3f; 
                     break;
             }
-            ++it;
             return cp;
+        }
+
+        template <typename octet_iterator>
+        inline uint32_t next(octet_iterator& it) {
+			  uint32_t cp{next_impl(it)};
+			  ++it;
+			  return cp;
         }
 
         template <typename octet_iterator>
@@ -215,13 +223,14 @@ namespace utf8
             return result;
         }
 
-        // The iterator class
+        namespace internal {
+        // The bidirectional_iterator class
         template <typename octet_iterator>
-          class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> { 
+          class bidirectional_iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> { 
             octet_iterator it;
             public:
-            iterator () {}
-            explicit iterator (const octet_iterator& octet_it): it(octet_it) {}
+            bidirectional_iterator () {}
+            explicit bidirectional_iterator (const octet_iterator& octet_it): it(octet_it) {}
             // the default "big three" are OK
             octet_iterator base () const { return it; }
             uint32_t operator * () const
@@ -229,37 +238,125 @@ namespace utf8
                 octet_iterator temp = it;
                 return utf8::unchecked::next(temp);
             }
-            bool operator == (const iterator& rhs) const 
+            bool operator == (const bidirectional_iterator& rhs) const 
             { 
                 return (it == rhs.it);
             }
-            bool operator != (const iterator& rhs) const
+            bool operator != (const bidirectional_iterator& rhs) const
             {
                 return !(operator == (rhs));
             }
-            iterator& operator ++ () 
+            bidirectional_iterator& operator ++ () 
             {
                 ::std::advance(it, utf8::internal::sequence_length(it));
                 return *this;
             }
-            iterator operator ++ (int)
+            bidirectional_iterator operator ++ (int)
             {
-                iterator temp = *this;
+                bidirectional_iterator temp = *this;
                 ::std::advance(it, utf8::internal::sequence_length(it));
                 return temp;
             }  
-            iterator& operator -- ()
+            bidirectional_iterator& operator -- ()
             {
                 utf8::unchecked::prior(it);
                 return *this;
             }
-            iterator operator -- (int)
+            bidirectional_iterator operator -- (int)
             {
-                iterator temp = *this;
+                bidirectional_iterator temp = *this;
                 utf8::unchecked::prior(it);
                 return temp;
             }
-          }; // class iterator
+          }; // class bidirectional_iterator
+
+        template <typename octet_iterator>
+        class input_iterator : public std::iterator<std::input_iterator_tag, uint32_t> {
+          private:
+          octet_iterator it;
+          uint32_t cp{};
+          void read() {
+    			cp = utf8::unchecked::next_impl(it);
+          }
+    
+          public:
+          input_iterator () {}
+          explicit input_iterator (const octet_iterator& octet_it) : it(octet_it)
+          {
+              read();
+          }
+          octet_iterator base () const { return it; }
+          uint32_t operator * () const
+          {
+              return cp;
+          }
+    
+          bool operator == (const input_iterator& rhs) const
+          {
+              return it == rhs.it;
+          }
+          bool operator != (const input_iterator& rhs) const
+          {
+              return !(operator == (rhs));
+          }
+          input_iterator& operator ++ ()
+          {
+              ++it;
+              read();
+              return *this;
+          }
+          input_iterator operator ++ (int)
+          {
+              input_iterator temp = *this;
+              ++it;
+              read();
+              return temp;
+          }
+        }; // class input_iterator
+
+        template <typename octet_iterator>
+        struct get_iterator_class {
+        private:
+	       static input_iterator<octet_iterator> get(std::input_iterator_tag);
+	       static bidirectional_iterator<octet_iterator> get(std::bidirectional_iterator_tag);
+        public:
+          using type = decltype(get(Iterator_category<octet_iterator>{}));
+        };
+		  }//internal
+
+        template <typename octet_iterator>
+        using iterator = typename utf8::unchecked::internal::get_iterator_class<octet_iterator>::type;
+
+        template <typename Cont>
+        inline std::pair<iterator<typename Cont::iterator>, iterator<typename Cont::iterator>> make_iterator_pair(Cont& c) {
+           using Iter = iterator<typename Cont::iterator>;
+           auto it = c.begin();
+           auto end = c.end();
+           return std::make_pair(Iter{it}, Iter{end});
+        }
+        template <typename Cont>
+        inline std::pair<iterator<typename Cont::const_iterator>, iterator<typename Cont::const_iterator>> make_iterator_pair(const Cont& c) {
+           using Iter = iterator<typename Cont::const_iterator>;
+           auto it = c.begin();
+           auto end = c.end();
+           return std::make_pair(Iter{it}, Iter{end});
+        }
+        template <size_t N>
+        inline std::pair<iterator<const char*>, iterator<const char*>> make_iterator_pair(const char(&tab)[N]) {
+           static_assert(N > 0, "bad utf8 string");
+           using Iter = iterator<const char*>;
+           auto it = &tab[0];
+           auto end = &tab[N-1];
+           return std::make_pair(Iter{it}, Iter{end});
+        }
+    
+        inline std::pair<iterator<std::istream_iterator<char>>, iterator<std::istream_iterator<char>>> make_iterator_pair(std::istream& is) {
+    		 using Is_iter = std::istream_iterator<char>;
+    		 using Iter = iterator<Is_iter>;
+    		 auto it = Is_iter{is};
+    		 auto end = Is_iter{};
+    		 return std::make_pair(Iter{it}, Iter{end});
+        }
 
     } // namespace utf8::unchecked
 } // namespace utf8 

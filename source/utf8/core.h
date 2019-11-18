@@ -237,7 +237,7 @@ namespace internal
     #undef UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR
 
     template <typename octet_iterator>
-    utf_error validate_next(octet_iterator& it, octet_iterator end, uint32_t& code_point)
+    utf_error validate_next_impl(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
         if (it == end)
             return NOT_ENOUGH_ROOM;
@@ -276,7 +276,6 @@ namespace internal
                 if (!utf8::internal::is_overlong_sequence(cp, length)){
                     // Passed! Return here.
                     code_point = cp;
-                    ++it;
                     return UTF8_OK;
                 }
                 else
@@ -290,6 +289,16 @@ namespace internal
         it = original_it;
         return err;
     }
+
+    template <typename octet_iterator>
+    utf_error validate_next(octet_iterator& it, octet_iterator end, uint32_t& code_point) {
+        utf_error err = validate_next_impl(it, end, code_point);
+        if(err == UTF8_OK) {
+            ++it;
+        }
+		  return err;
+    }
+
 
     template <typename octet_iterator>
     inline utf_error validate_next(octet_iterator& it, octet_iterator end) {
