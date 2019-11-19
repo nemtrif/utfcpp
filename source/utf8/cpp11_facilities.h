@@ -29,8 +29,8 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
-	 template<typename T>
-	 using Iterator_category = typename std::iterator_traits<T>::iterator_category;
+   template<typename T>
+   using Iterator_category = typename std::iterator_traits<T>::iterator_category;
 
 } // namespace utf8
 

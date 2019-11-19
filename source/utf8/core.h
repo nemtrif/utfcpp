@@ -296,7 +296,7 @@ namespace internal
         if(err == UTF8_OK) {
             ++it;
         }
-		  return err;
+        return err;
     }
 
 
@@ -339,7 +339,7 @@ namespace internal
             ((it != end) && (utf8::internal::mask8(*it++)) == bom[1]) &&
             ((it != end) && (utf8::internal::mask8(*it))   == bom[2])
            );
-    }	
+    }
 } // namespace utf8
 
 #endif // header guard

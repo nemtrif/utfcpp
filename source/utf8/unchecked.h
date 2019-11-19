@@ -131,9 +131,9 @@ namespace utf8
 
         template <typename octet_iterator>
         inline uint32_t next(octet_iterator& it) {
-			  uint32_t cp{next_impl(it)};
-			  ++it;
-			  return cp;
+            uint32_t cp{next_impl(it)};
+            ++it;
+            return cp;
         }
 
         template <typename octet_iterator>
@@ -276,7 +276,7 @@ namespace utf8
           octet_iterator it;
           uint32_t cp{};
           void read() {
-    			cp = utf8::unchecked::next_impl(it);
+              cp = utf8::unchecked::next_impl(it);
           }
     
           public:
@@ -317,12 +317,12 @@ namespace utf8
         template <typename octet_iterator>
         struct get_iterator_class {
         private:
-	       static input_iterator<octet_iterator> get(std::input_iterator_tag);
-	       static bidirectional_iterator<octet_iterator> get(std::bidirectional_iterator_tag);
+          static input_iterator<octet_iterator> get(std::input_iterator_tag);
+          static bidirectional_iterator<octet_iterator> get(std::bidirectional_iterator_tag);
         public:
           using type = decltype(get(Iterator_category<octet_iterator>{}));
         };
-		  }//internal
+        }//internal
 
         template <typename octet_iterator>
         using iterator = typename utf8::unchecked::internal::get_iterator_class<octet_iterator>::type;
@@ -351,11 +351,11 @@ namespace utf8
         }
     
         inline std::pair<iterator<std::istream_iterator<char>>, iterator<std::istream_iterator<char>>> make_iterator_pair(std::istream& is) {
-    		 using Is_iter = std::istream_iterator<char>;
-    		 using Iter = iterator<Is_iter>;
-    		 auto it = Is_iter{is};
-    		 auto end = Is_iter{};
-    		 return std::make_pair(Iter{it}, Iter{end});
+           using Is_iter = std::istream_iterator<char>;
+           using Iter = iterator<Is_iter>;
+           auto it = Is_iter{is};
+           auto end = Is_iter{};
+           return std::make_pair(Iter{it}, Iter{end});
         }
 
     } // namespace utf8::unchecked
