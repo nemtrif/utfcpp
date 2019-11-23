@@ -211,7 +211,7 @@ namespace utf8
     distance (octet_iterator first, octet_iterator last)
     {
         typename std::iterator_traits<octet_iterator>::difference_type dist;
-        for (dist = 0; first < last; ++dist)
+        for (dist = 0; first != last; ++dist)
             utf8::next(first, last);
         return dist;
     }
@@ -278,19 +278,41 @@ namespace utf8
 
     namespace internal {
 
+    template <typename T>
+    bool is_in_range(T o, T start, T end, std::random_access_iterator_tag )
+    {
+        return start <= o && o <= end;
+    }
+    template <typename T>
+    bool is_in_range(T , T , T , std::input_iterator_tag ) {
+        return true;
+    }
+    template <typename T>
+    bool is_in_range(T o, T start, T end) {
+        return is_in_range(o, start, end, internal::Iterator_category<T>{});
+    }
+
     // The bidirectional_iterator class
     template <typename octet_iterator>
-    class bidirectional_iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> {
+    class bidirectional_iterator {
       octet_iterator it;
       octet_iterator range_start;
       octet_iterator range_end;
       public:
+      using iterator_category = std::bidirectional_iterator_tag;
+      using value_type = uint32_t;
+      using difference_type = ptrdiff_t;
+      using pointer = uint32_t*;
+      using reference = uint32_t&;
+
       bidirectional_iterator () {}
       explicit bidirectional_iterator (const octet_iterator& octet_it,
                          const octet_iterator& rangestart,
                          const octet_iterator& rangeend) :
                it(octet_it), range_start(rangestart), range_end(rangeend)
       {
+          if (!is_in_range(it, rangestart, rangeend))
+              throw std::out_of_range("Invalid utf-8 iterator position");
       }
       // the default "big three" are OK
       octet_iterator base () const { return it; }
@@ -317,7 +339,7 @@ namespace utf8
       bidirectional_iterator operator ++ (int)
       {
           bidirectional_iterator temp = *this;
-          utf8::next(it, range_end);
+          ++(*this);
           return temp;
       }
       bidirectional_iterator& operator -- ()
@@ -328,13 +350,13 @@ namespace utf8
       bidirectional_iterator operator -- (int)
       {
           bidirectional_iterator temp = *this;
-          utf8::prior(it, range_start);
+          --(*this);
           return temp;
       }
     }; // class bidirectional_iterator
 
     template <typename octet_iterator>
-    class input_iterator : public std::iterator<std::input_iterator_tag, uint32_t> {
+    class input_iterator {
       private:
       octet_iterator it;
       octet_iterator range_start;
@@ -349,6 +371,12 @@ namespace utf8
       }
 
       public:
+      using iterator_category = std::input_iterator_tag;
+      using value_type = uint32_t;
+      using difference_type = ptrdiff_t;
+      using pointer = uint32_t*;
+      using reference = uint32_t&;
+
       input_iterator () {}
       explicit input_iterator (const octet_iterator& octet_it,
                          const octet_iterator& rangestart,
@@ -360,9 +388,6 @@ namespace utf8
       octet_iterator base () const { return it; }
       uint32_t operator * () const
       {
-          if(!ok) {
-              throw std::runtime_error("no such element");
-          }
           return cp;
       }
 
@@ -385,8 +410,7 @@ namespace utf8
       input_iterator operator ++ (int)
       {
           input_iterator temp = *this;
-          ++it;
-          read();
+          ++(*this);
           return temp;
       }
     }; // class input_iterator
@@ -403,37 +427,101 @@ namespace utf8
     }//internal
 
     template <typename octet_iterator>
-    using iterator = typename utf8::internal::get_iterator_class<octet_iterator>::type;
+    using iterator = typename internal::get_iterator_class<octet_iterator>::type;
 
+    /**
+     * a class for containers like std::string
+     * to ease the creation of a code point iterator begin and end
+     */ 
     template <typename Cont>
-    inline std::pair<iterator<typename Cont::iterator>, iterator<typename Cont::iterator>> make_iterator_pair(Cont& c) {
-       using Iter = iterator<typename Cont::iterator>;
-       auto it = c.begin();
-       auto end = c.end();
-       return std::make_pair(Iter{it, it, end}, Iter{end, it, end});
+    class utf8_sequence {
+    public:
+      using Iter = typename utf8::iterator<typename Cont::const_iterator>;
+      using iterator = Iter;
+      using const_iterator = Iter;
+      using value_type = typename std::iterator_traits<Iter>::value_type;
+    private:
+      const Cont *p{};
+    public:
+      explicit utf8_sequence(const Cont& c) : p{&c} {}
+      Iter begin() const {
+        return Iter{std::begin(*p), std::begin(*p), std::end(*p)};
+      }
+      Iter end() const {
+        return Iter{std::end(*p), std::begin(*p), std::end(*p)};
+      }
+    };
+
+    /**
+     * a class for null-terminated strings
+     * to ease the creation of a code point iterator begin and end
+     */ 
+    class utf8_sequence_char {
+    public:
+      using Iter = utf8::iterator<const char*>;
+      using const_iterator = Iter;
+      using value_type = typename std::iterator_traits<Iter>::value_type;
+    private:
+      const char *range_start{};
+      const char *range_end{};
+    public:
+      /**
+       * \param n : size of string, excluding the terminating null byte
+       */
+      utf8_sequence_char(const char *p, size_t n) : range_start{p}, range_end{p+n} {}
+      explicit utf8_sequence_char(const char *p) : utf8_sequence_char{p, std::char_traits<char>::length(p)} {}
+      template<size_t N>
+      explicit utf8_sequence_char(const char(&tab)[N]) : utf8_sequence_char{&tab[0], N-1} { }
+      Iter begin() const {
+        return Iter{range_start, range_start, range_end};
+      }
+      Iter end() const {
+        return Iter{range_end, range_start, range_end};
+      }
+    };
+
+    /**
+     * a class for istream
+     * to ease the creation of a code point iterator begin and end
+     */ 
+    class utf8_sequence_stream {
+    private:
+      using Iter_base = std::istream_iterator<char>;
+    public:
+      using Iter = utf8::iterator<Iter_base>;
+      using iterator = Iter;
+      using const_iterator = Iter;
+      using value_type = typename std::iterator_traits<Iter>::value_type;
+    private:
+      Iter_base range_start;
+      Iter_base range_end{};
+    public:
+      explicit utf8_sequence_stream(std::istream& s) : range_start{s}{}
+      Iter begin() const {
+        return Iter{range_start, range_start, range_end};
+      }
+      Iter end() const {
+        return Iter{range_end, range_start, range_end};
+      }
+    };
+
+    /// make_cp_sequence to create a container of cp point
+    template <typename Cont, typename T = internal::Decay<decltype(*std::begin(std::declval<Cont>()))>>
+    utf8_sequence<Cont> make_cp_sequence(const Cont& c) {
+      return utf8_sequence<Cont>{c};
     }
-    template <typename Cont>
-    inline std::pair<iterator<typename Cont::const_iterator>, iterator<typename Cont::const_iterator>> make_iterator_pair(const Cont& c) {
-       using Iter = iterator<typename Cont::const_iterator>;
-       auto it = c.begin();
-       auto end = c.end();
-       return std::make_pair(Iter{it, it, end}, Iter{end, it, end});
+    inline utf8_sequence_char make_cp_sequence(const char *s) {
+      return utf8_sequence_char{s};
+    }
+    inline utf8_sequence_char make_cp_sequence(const char *s, size_t n) {
+      return utf8_sequence_char{s, n};
+    }
+    inline utf8_sequence_stream make_cp_sequence(std::istream& is) {
+      return utf8_sequence_stream{is};
     }
     template <size_t N>
-    inline std::pair<iterator<const char*>, iterator<const char*>> make_iterator_pair(const char(&tab)[N]) {
-       static_assert(N > 0, "bad utf8 string");
-       using Iter = iterator<const char*>;
-       auto it = &tab[0];
-       auto end = &tab[N-1];
-       return std::make_pair(Iter{it, it, end}, Iter{end, it, end});
-    }
-
-    inline std::pair<iterator<std::istream_iterator<char>>, iterator<std::istream_iterator<char>>> make_iterator_pair(std::istream& is) {
-       using Is_iter = std::istream_iterator<char>;
-       using Iter = iterator<Is_iter>;
-       auto it = Is_iter{is};
-       auto end = Is_iter{};
-       return std::make_pair(Iter{it, it, end}, Iter{end, it, end});
+    utf8_sequence_char make_cp_sequence(const char (&tab)[N]) {
+      return utf8_sequence_char{tab};
     }
 
 } // namespace utf8
