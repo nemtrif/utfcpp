@@ -29,9 +29,12 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
-   template<typename T>
+ namespace internal {
+   template <typename T>
    using Iterator_category = typename std::iterator_traits<T>::iterator_category;
-
+	template <typename T>
+	using Decay = typename std::decay<T>::type;//std::decay_t in c++14
+ } // namespace internal
 } // namespace utf8
 
 #endif // header guard
