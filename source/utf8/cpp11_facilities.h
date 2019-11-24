@@ -30,10 +30,12 @@ DEALINGS IN THE SOFTWARE.
 namespace utf8
 {
  namespace internal {
+   template <bool B, typename U, typename F>
+   using Conditional = typename std::conditional<B,U,F>::type;
    template <typename T>
    using Iterator_category = typename std::iterator_traits<T>::iterator_category;
-	template <typename T>
-	using Decay = typename std::decay<T>::type;//std::decay_t in c++14
+   template <typename T>
+   using Decay = typename std::decay<T>::type;//std::decay_t in c++14
  } // namespace internal
 } // namespace utf8
 
