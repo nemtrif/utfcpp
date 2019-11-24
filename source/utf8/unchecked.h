@@ -276,62 +276,73 @@ namespace utf8
             }
           }; // class bidirectional_iterator
 
-        template <typename octet_iterator>
-        class input_iterator : public std::iterator<std::input_iterator_tag, uint32_t> {
-          private:
-          octet_iterator it;
-          uint32_t cp{};
-          void read() {
-              cp = utf8::unchecked::next_impl(it);
-          }
-    
+        class iterator_stream {
           public:
-          using iterator_category = std::input_iterator_tag;
+          using Iter = std::istream_iterator<char>;
+
+          using iterator_category = Iter::iterator_category;
           using value_type = uint32_t;
           using difference_type = ptrdiff_t;
           using pointer = uint32_t*;
           using reference = uint32_t&;
 
-          input_iterator () {}
-          explicit input_iterator (const octet_iterator& octet_it) : it(octet_it)
+          private:
+          Iter it;
+          Iter end_range{};
+          uint32_t cp{};
+          bool ok{};
+
+          void read() {
+             ok = it != end_range;
+             if(ok) {
+              cp = utf8::unchecked::next_impl(it);
+             }
+          }
+
+          public:
+          iterator_stream () {}
+          explicit iterator_stream (const Iter& octet_it) : it(octet_it)
           {
               read();
           }
-          octet_iterator base () const { return it; }
+          Iter base () const { return it; }
           uint32_t operator * () const
           {
               return cp;
           }
     
-          bool operator == (const input_iterator& rhs) const
+          bool operator == (const iterator_stream& rhs) const
           {
-              return it == rhs.it;
+              return ok == rhs.ok && (!ok || it == rhs.it);
           }
-          bool operator != (const input_iterator& rhs) const
+          bool operator != (const iterator_stream& rhs) const
           {
               return !(operator == (rhs));
           }
-          input_iterator& operator ++ ()
+          iterator_stream& operator ++ ()
           {
               ++it;
               read();
               return *this;
           }
-          input_iterator operator ++ (int)
+          iterator_stream operator ++ (int)
           {
-              input_iterator temp = *this;
+              iterator_stream temp = *this;
               ++(*this);
               return temp;
           }
-        }; // class input_iterator
+        }; // class iterator_stream
 
         template <typename octet_iterator>
         struct get_iterator_class {
         private:
-          static input_iterator<octet_iterator> get(std::input_iterator_tag);
+          static void get(std::input_iterator_tag);//not supported
           static bidirectional_iterator<octet_iterator> get(std::bidirectional_iterator_tag);
         public:
-          using type = decltype(get(utf8::internal::Iterator_category<octet_iterator>{}));
+          using type = utf8::internal::Conditional<
+          std::is_same<std::istream_iterator<char>, octet_iterator>::value,
+          iterator_stream,
+          decltype(get(utf8::internal::Iterator_category<octet_iterator>{}))>;
         };
         }//internal
 
