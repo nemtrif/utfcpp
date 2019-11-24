@@ -178,6 +178,10 @@ TEST(UnCheckedIteratrTests, test_increment_istream)
     EXPECT_EQ (*it, 0x0041);
     EXPECT_EQ (*it, 0x0041);
     EXPECT_EQ (++it, s.end());
+    //two end iterators are always equals
+    using Iter = std::istream_iterator<char>;
+    EXPECT_EQ(it, iterator<Iter>(Iter{}));
+    EXPECT_EQ(iterator<Iter>(Iter{}), iterator<Iter>(Iter{}));
 }
 
 TEST(UnCheckedIteratrTests, test_increment_string)
