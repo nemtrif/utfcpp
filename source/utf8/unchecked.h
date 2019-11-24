@@ -276,7 +276,7 @@ namespace utf8
             }
           }; // class bidirectional_iterator
 
-        class iterator_stream {
+        class istream_iterator {
           public:
           using Iter = std::istream_iterator<char>;
 
@@ -290,18 +290,17 @@ namespace utf8
           Iter it;
           Iter end_range{};
           uint32_t cp{};
-          bool ok{};
 
           void read() {
-             ok = it != end_range;
+             bool ok = it != end_range;
              if(ok) {
               cp = utf8::unchecked::next_impl(it);
              }
           }
 
           public:
-          iterator_stream () {}
-          explicit iterator_stream (const Iter& octet_it) : it(octet_it)
+          istream_iterator () {}
+          explicit istream_iterator (const Iter& octet_it) : it(octet_it)
           {
               read();
           }
@@ -311,27 +310,27 @@ namespace utf8
               return cp;
           }
     
-          bool operator == (const iterator_stream& rhs) const
+          bool operator == (const istream_iterator& rhs) const
           {
-              return ok == rhs.ok && (!ok || it == rhs.it);
+              return it == rhs.it;
           }
-          bool operator != (const iterator_stream& rhs) const
+          bool operator != (const istream_iterator& rhs) const
           {
               return !(operator == (rhs));
           }
-          iterator_stream& operator ++ ()
+          istream_iterator& operator ++ ()
           {
               ++it;
               read();
               return *this;
           }
-          iterator_stream operator ++ (int)
+          istream_iterator operator ++ (int)
           {
-              iterator_stream temp = *this;
+              istream_iterator temp = *this;
               ++(*this);
               return temp;
           }
-        }; // class iterator_stream
+        }; // class istream_iterator
 
         template <typename octet_iterator>
         struct get_iterator_class {
@@ -341,7 +340,7 @@ namespace utf8
         public:
           using type = utf8::internal::Conditional<
           std::is_same<std::istream_iterator<char>, octet_iterator>::value,
-          iterator_stream,
+          istream_iterator,
           decltype(get(utf8::internal::Iterator_category<octet_iterator>{}))>;
         };
         }//internal
