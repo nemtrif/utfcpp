@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "utf8/unchecked.h"
+#include <sstream>
 
 using namespace utf8::unchecked;
 
@@ -17,6 +18,16 @@ TEST(UnCheckedIteratrTests, test_increment)
     EXPECT_NE (it, it2);
     utf8::unchecked::iterator<const char*> endit (threechars + 9);
     EXPECT_EQ (++it, endit);
+    {
+		 std::istringstream is{u8"\U00010346\u65e5\u0448"};
+		 is >> std::noskipws;
+		 using Istream_iterator = std::istream_iterator<char>;
+		 using Iter = utf8::unchecked::iterator<Istream_iterator>;
+		 Istream_iterator begin{is};
+		 Iter it{begin};
+		 EXPECT_EQ (*it, 0x10346);
+		 EXPECT_EQ (*it, 0x10346);
+    }
 }
 
 TEST(UnCheckedIteratrTests, test_decrement)
