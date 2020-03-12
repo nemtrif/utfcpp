@@ -325,7 +325,7 @@ namespace utf8
 
 } // namespace utf8
 
-#if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
+#if UTF_CPP_CPLUSPLUS >= 201103L || defined(_MSVC_LANG) // C++ 11 or later
 #include "cpp11.h"
 #endif // C++ 11 or later
 
