@@ -7,6 +7,11 @@ else()
     set(IS_ROOT_PROJECT OFF)
 endif()
 
+if (MSVC)
+    # Enable correct __cplusplus versioning in MSVC
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+endif()
+
 option(UTF8_TESTS "Enable tests for UTF8-CPP" ${IS_ROOT_PROJECT})
 option(UTF8_INSTALL "Enable installation for UTF8-CPP" ${IS_ROOT_PROJECT})
 option(UTF8_SAMPLES "Enable building samples for UTF8-CPP" ${IS_ROOT_PROJECT})
