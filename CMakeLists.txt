@@ -37,6 +37,8 @@ if(UTF8_SAMPLES)
 endif()
 
 if(UTF8_TESTS)
+    # Tell gtest to use shared crt (option /MD)
+    set(gtest_force_shared_crt ON)
     enable_testing()
     add_subdirectory(extern/gtest)
     add_subdirectory(tests)
