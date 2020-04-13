@@ -1,9 +1,8 @@
-#include "../source/utf8.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-
+#include <utf8.h>
 
 using namespace std;
 
