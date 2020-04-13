@@ -172,40 +172,48 @@ namespace internal
         return false;
     }
 
-    enum utf_error {UTF8_OK, NOT_ENOUGH_ROOM, INVALID_LEAD, INCOMPLETE_SEQUENCE, OVERLONG_SEQUENCE, INVALID_CODE_POINT};
+    enum utf_error
+    {
+        utf8_ok,
+        not_enough_room,
+        invalid_lead,
+        incomplete_sequence,
+        overlong_sequence,
+        invalid_code_point
+    };
 
     /// Helper for get_sequence_x
     template <typename octet_iterator>
     utf_error increase_safely(octet_iterator& it, octet_iterator end)
     {
         if (++it == end)
-            return NOT_ENOUGH_ROOM;
+            return not_enough_room;
 
         if (!utf8::internal::is_trail(*it))
-            return INCOMPLETE_SEQUENCE;
+            return incomplete_sequence;
 
-        return UTF8_OK;
+        return utf8_ok;
     }
 
-    #define UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(IT, END) {utf_error ret = increase_safely(IT, END); if (ret != UTF8_OK) return ret;}    
+    #define UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(IT, END) {utf_error ret = increase_safely(IT, END); if (ret != utf8_ok) return ret;}    
 
     /// get_sequence_x functions decode utf-8 sequences of the length x
     template <typename octet_iterator>
     utf_error get_sequence_1(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
         if (it == end)
-            return NOT_ENOUGH_ROOM;
+            return not_enough_room;
 
         code_point = utf8::internal::mask8(*it);
 
-        return UTF8_OK;
+        return utf8_ok;
     }
 
     template <typename octet_iterator>
     utf_error get_sequence_2(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
         if (it == end) 
-            return NOT_ENOUGH_ROOM;
+            return not_enough_room;
 
         code_point = utf8::internal::mask8(*it);
 
@@ -213,14 +221,14 @@ namespace internal
 
         code_point = ((code_point << 6) & 0x7ff) + ((*it) & 0x3f);
 
-        return UTF8_OK;
+        return utf8_ok;
     }
 
     template <typename octet_iterator>
     utf_error get_sequence_3(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
         if (it == end)
-            return NOT_ENOUGH_ROOM;
+            return not_enough_room;
             
         code_point = utf8::internal::mask8(*it);
 
@@ -232,14 +240,14 @@ namespace internal
 
         code_point += (*it) & 0x3f;
 
-        return UTF8_OK;
+        return utf8_ok;
     }
 
     template <typename octet_iterator>
     utf_error get_sequence_4(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
         if (it == end)
-           return NOT_ENOUGH_ROOM;
+           return not_enough_room;
 
         code_point = utf8::internal::mask8(*it);
 
@@ -255,7 +263,7 @@ namespace internal
 
         code_point += (*it) & 0x3f;
 
-        return UTF8_OK;
+        return utf8_ok;
     }
 
     #undef UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR
@@ -264,7 +272,7 @@ namespace internal
     utf_error validate_next(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
         if (it == end)
-            return NOT_ENOUGH_ROOM;
+            return not_enough_room;
 
         // Save the original value of it so we can go back in case of failure
         // Of course, it does not make much sense with i.e. stream iterators
@@ -276,10 +284,10 @@ namespace internal
         const octet_difference_type length = utf8::internal::sequence_length(it);
 
         // Get trail octets and calculate the code point
-        utf_error err = UTF8_OK;
+        utf_error err = utf8_ok;
         switch (length) {
             case 0:
-                return INVALID_LEAD;
+                return invalid_lead;
             case 1:
                 err = utf8::internal::get_sequence_1(it, end, cp);
                 break;
@@ -294,20 +302,20 @@ namespace internal
             break;
         }
 
-        if (err == UTF8_OK) {
+        if (err == utf8_ok) {
             // Decoding succeeded. Now, security checks...
             if (utf8::internal::is_code_point_valid(cp)) {
                 if (!utf8::internal::is_overlong_sequence(cp, length)){
                     // Passed! Return here.
                     code_point = cp;
                     ++it;
-                    return UTF8_OK;
+                    return utf8_ok;
                 }
                 else
-                    err = OVERLONG_SEQUENCE;
+                    err = overlong_sequence;
             }
             else 
-                err = INVALID_CODE_POINT;
+                err = invalid_code_point;
         }
 
         // Failure branch - restore the original value of the iterator
@@ -334,7 +342,7 @@ namespace internal
         octet_iterator result = start;
         while (result != end) {
             utf8::internal::utf_error err_code = utf8::internal::validate_next(result, end);
-            if (err_code != internal::UTF8_OK)
+            if (err_code != internal::utf8_ok)
                 return result;
         }
         return result;

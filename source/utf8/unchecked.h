@@ -64,21 +64,21 @@ namespace utf8
                 octet_iterator sequence_start = start;
                 internal::utf_error err_code = utf8::internal::validate_next(start, end);
                 switch (err_code) {
-                    case internal::UTF8_OK :
+                    case internal::utf8_ok:
                         for (octet_iterator it = sequence_start; it != start; ++it)
                             *out++ = *it;
                         break;
-                    case internal::NOT_ENOUGH_ROOM:
+                    case internal::not_enough_room:
                         out = utf8::unchecked::append (replacement, out);
                         start = end;
                         break;
-                    case internal::INVALID_LEAD:
+                    case internal::invalid_lead:
                         out = utf8::unchecked::append (replacement, out);
                         ++start;
                         break;
-                    case internal::INCOMPLETE_SEQUENCE:
-                    case internal::OVERLONG_SEQUENCE:
-                    case internal::INVALID_CODE_POINT:
+                    case internal::incomplete_sequence:
+                    case internal::overlong_sequence:
+                    case internal::invalid_code_point:
                         out = utf8::unchecked::append (replacement, out);
                         ++start;
                         // just one replacement mark for the sequence
