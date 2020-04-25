@@ -40,6 +40,7 @@ DEALINGS IN THE SOFTWARE.
 #endif
 
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
+    #include <cstdint>
     #define OVERRIDE override
     #define NOEXCEPT noexcept
 #else // C++ 98/03
@@ -50,12 +51,14 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
+#if UTF_CPP_CPLUSPLUS < 201103L // C++ 98/03
     // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
     // You may need to change them to match your system.
     // These typedefs have the same names as ones from cstdint, or boost/cstdint
     typedef unsigned char   uint8_t;
     typedef unsigned short  uint16_t;
     typedef unsigned int    uint32_t;
+#endif
 
     enum endianess
     {
