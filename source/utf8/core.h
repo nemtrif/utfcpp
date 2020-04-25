@@ -29,6 +29,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_FOR_CPP_CORE_H_2675DCD0_9480_4c0c_B92A_CC14C027B731
 
 #include <iterator>
+#include <stdexcept>
 
 // Determine the C++ standard version.
 // If the user defines UTF_CPP_CPLUSPLUS, use that.
@@ -56,6 +57,12 @@ namespace utf8
     typedef unsigned short  uint16_t;
     typedef unsigned int    uint32_t;
 
+    enum endianess
+    {
+        little_endian,
+        big_endian,
+    };
+
 // Helper code - not intended to be directly called by the library users. May be changed at any time
 namespace internal
 {
@@ -72,16 +79,33 @@ namespace internal
     // Maximum valid value for a Unicode code point
     const uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 
+    // Perform an runtime check to determine if byte swap is required
+    // with the given endianess hint
+    inline bool is_byte_swap_required(endianess hint)
+    {
+        switch (hint)
+        {
+        case little_endian:
+            return (*(const uint16_t*)"\1\0" >> 8) == 1;
+        case big_endian:
+            return (*(const uint16_t*)"\0\1" >> 8) == 1;
+        default:
+            throw std::runtime_error("Unexpected endianess hint");
+        }
+    }
+
     template<typename octet_type>
     inline uint8_t mask8(octet_type oc)
     {
         return static_cast<uint8_t>(0xff & oc);
     }
+
     template<typename u16_type>
     inline uint16_t mask16(u16_type oc)
     {
         return static_cast<uint16_t>(0xffff & oc);
     }
+
     template<typename octet_type>
     inline bool is_trail(octet_type oc)
     {
@@ -330,7 +354,100 @@ namespace internal
             ((it != end) && (utf8::internal::mask8(*it++)) == bom[1]) &&
             ((it != end) && (utf8::internal::mask8(*it))   == bom[2])
            );
-    }	
+    }
+
+    struct swapped
+    {
+        static inline uint16_t handle(uint16_t c)
+        {
+            // Perform byte swap
+            return ((c & 0xff00) >> 8) | ((c & 0x00ff) << 8);
+        }
+    };
+
+    struct unswapped
+    {
+        static inline uint16_t handle(uint16_t c)
+        {
+            // Just return same number
+            return c;
+        }
+    };
+
+    // Handle reading/writing of utf16 character, swapping byte if needed/requested
+    #define HANDLE_U16C(handler, x) handler::handle(static_cast<uint16_t>(x & 0xffff))
+
+    template <typename swap_handler, typename u16bit_iterator, typename octet_iterator>
+    octet_iterator utf16to8_checked(u16bit_iterator start, u16bit_iterator end, octet_iterator result)
+    {
+        while (start != end) {
+            uint32_t cp = HANDLE_U16C(swap_handler, *start++);
+            // Take care of surrogate pairs first
+            if (utf8::internal::is_lead_surrogate(cp)) {
+                if (start != end) {
+                    uint32_t trail_surrogate = HANDLE_U16C(swap_handler, *start++);
+                    if (utf8::internal::is_trail_surrogate(trail_surrogate))
+                        cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
+                    else
+                        throw invalid_utf16(static_cast<uint16_t>(trail_surrogate));
+                }
+                else
+                    throw invalid_utf16(static_cast<uint16_t>(cp));
+
+            }
+            // Lone trail surrogate
+            else if (utf8::internal::is_trail_surrogate(cp))
+                throw invalid_utf16(static_cast<uint16_t>(cp));
+
+            result = utf8::append(cp, result);
+        }
+        return result;
+    }
+
+    template <typename swap_handler, typename u16bit_iterator, typename octet_iterator>
+    octet_iterator utf16to8_unchecked(u16bit_iterator start, u16bit_iterator end, octet_iterator result)
+    {
+        while (start != end) {
+            uint32_t cp = HANDLE_U16C(swap_handler, *start++);
+            // Take care of surrogate pairs first
+            if (utf8::internal::is_lead_surrogate(cp)) {
+                uint32_t trail_surrogate = HANDLE_U16C(swap_handler, *start++);
+                cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
+            }
+            result = utf8::unchecked::append(cp, result);
+        }
+        return result;
+    }
+
+    template <typename swap_handler, typename u16bit_iterator, typename octet_iterator>
+    u16bit_iterator utf8to16_checked(bool swapbytes, octet_iterator start, octet_iterator end, u16bit_iterator result)
+    {
+        while (start < end) {
+            uint32_t cp = utf8::next(start, end);
+            if (cp > 0xffff) { //make a surrogate pair
+                *result++ = HANDLE_U16C(swap_handler, (cp >> 10) + internal::LEAD_OFFSET);
+                *result++ = HANDLE_U16C(swap_handler, (cp & 0x3ff) + internal::TRAIL_SURROGATE_MIN);
+            }
+            else
+                *result++ = HANDLE_U16C(swap_handler, cp);
+        }
+        return result;
+    }
+
+    template <typename swap_handler, typename u16bit_iterator, typename octet_iterator>
+    u16bit_iterator utf8to16_unchecked(octet_iterator start, octet_iterator end, u16bit_iterator result)
+    {
+        while (start < end) {
+            uint32_t cp = utf8::unchecked::next(start);
+            if (cp > 0xffff) { //make a surrogate pair
+                *result++ = HANDLE_U16C(swap_handler, (cp >> 10) + internal::LEAD_OFFSET);
+                *result++ = HANDLE_U16C(swap_handler, (cp & 0x3ff) + internal::TRAIL_SURROGATE_MIN);
+            }
+            else
+                *result++ = HANDLE_U16C(swap_handler, cp);
+        }
+        return result;
+    }
 } // namespace utf8
 
 #endif // header guard

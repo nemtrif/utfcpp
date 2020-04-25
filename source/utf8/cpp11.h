@@ -46,10 +46,38 @@ namespace utf8
         return result;
     }
 
+    inline std::string utf16to8(const std::u16string& s, endianess hint)
+    {
+        std::string result;
+        utf16to8(hint, s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
+    inline std::string utf16to8(const std::u16string& s, bool swapbytes)
+    {
+        std::string result;
+        utf16to8(swapbytes, s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
     inline std::u16string utf8to16(const std::string& s)
     {
         std::u16string result;
         utf8to16(s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
+    inline std::u16string utf8to16(const std::string& s, endianess hint)
+    {
+        std::u16string result;
+        utf8to16(hint, s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
+    inline std::u16string utf8to16(const std::string& s, bool swapbytes)
+    {
+        std::u16string result;
+        utf8to16(swapbytes, s.begin(), s.end(), std::back_inserter(result));
         return result;
     }
 

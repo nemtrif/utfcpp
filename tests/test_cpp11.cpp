@@ -6,6 +6,8 @@ using namespace std;
 
 #if __cplusplus >= 201103L // C++ 11 or later
 
+static void swap_u16_raw_buffer(vector<uint8_t>& buffer);
+
 TEST(CPP11APITests, test_append)
 {
     string u;
@@ -103,4 +105,70 @@ TEST(CPP11APITests, test_starts_with_bom)
     bool no_bbom = starts_with_bom(threechars);
     EXPECT_FALSE (no_bbom);
 }
+
+static void test_utf16to8_endianess_hint(const vector<uint8_t>& u16_src_raw, endianess hint, const string& u8_ref)
+{
+    u16string u16_src((const char16_t*)u16_src_raw.data(), u16_src_raw.size() / 2);
+    string u8_conv = utf16to8(u16_src, hint);
+    EXPECT_EQ(u8_conv, u8_ref);
+
+    u8_conv.clear();
+    unchecked::utf16to8(hint, u16_src.begin(), u16_src.end(), std::back_inserter(u8_conv));
+    EXPECT_EQ(u8_conv, u8_ref);
+
+    u8_conv.clear();
+    unchecked::utf16to8(!internal::is_byte_swap_required(hint), u16_src.begin(), u16_src.end(), std::back_inserter(u8_conv));
+    EXPECT_NE(u8_conv, u8_ref);
+}
+
+TEST(CPP11APITests, test_utf16to8_endianess_hint)
+{
+    // https://r12a.github.io/app-conversion/?q=%F0%A0%94%80%F0%A0%81%85%F0%A0%81%BAad%F0%A0%81%BC
+    string u8_ref = "\xF0\xA0\x94\x80\xF0\xA0\x81\x85\xF0\xA0\x81\xBA\x61\x64\xF0\xA0\x81\xBC";
+    vector<uint8_t> u16_src_raw = { 0xD8, 0x41, 0xDD, 0x00, 0xD8, 0x40, 0xDC, 0x45, 0xD8, 0x40,
+                                           0xDC, 0x7A, 0x00, 0x61, 0x00, 0x64, 0xD8, 0x40, 0xDC, 0x7C };
+
+    test_utf16to8_endianess_hint(u16_src_raw, endianess::big_endian, u8_ref);
+    swap_u16_raw_buffer(u16_src_raw);
+    test_utf16to8_endianess_hint(u16_src_raw, endianess::little_endian, u8_ref);
+}
+
+static void test_utf8to16_endianess_hint(const string& u8_src, const vector<uint8_t>& u16_ref_raw, endianess hint)
+{
+    u16string u16_ref((const char16_t*)u16_ref_raw.data(), u16_ref_raw.size() / 2);
+    u16string u16_conv = utf8::utf8to16(u8_src, hint);
+    EXPECT_EQ(u16_conv, u16_ref);
+
+    u16_conv.clear();
+    unchecked::utf8to16(hint, u8_src.begin(), u8_src.end(), std::back_inserter(u16_conv));
+    EXPECT_EQ(u16_conv, u16_ref);
+
+    u16_conv.clear();
+    unchecked::utf8to16(!internal::is_byte_swap_required(hint), u8_src.begin(), u8_src.end(), std::back_inserter(u16_conv));
+    EXPECT_NE(u16_conv, u16_ref);
+}
+
+TEST(CPP11APITests, test_utf8to16_endianess_hint)
+{
+    // https://r12a.github.io/app-conversion/?q=hello
+    string u8_src = "hello";
+    vector<uint8_t> u16_ref_raw = { 0x00, 0x68, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 0x00, 0x6F };
+    test_utf8to16_endianess_hint(u8_src, u16_ref_raw, endianess::big_endian);
+    swap_u16_raw_buffer(u16_ref_raw);
+    test_utf8to16_endianess_hint(u8_src, u16_ref_raw, endianess::little_endian);
+}
+
+// Swap bytes in utf-16 characters
+void swap_u16_raw_buffer(vector<uint8_t>& buffer)
+{
+    size_t loopUpperLimit = buffer.size() / 2;
+    for (size_t i = 0; i < loopUpperLimit; i++)
+    {
+        size_t offesetIdx = i * 2;
+        uint8_t temp = buffer[offesetIdx];
+        buffer[offesetIdx + 0] = buffer[offesetIdx + 1];
+        buffer[offesetIdx + 1] = temp;
+    }
+}
+
 #endif  // C++ 11 or later
