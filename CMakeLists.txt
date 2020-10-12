@@ -23,7 +23,7 @@ if(UTF8_INSTALL)
         set(DEF_INSTALL_CMAKE_DIR CMake)
     else()
         include(GNUInstallDirs) # define CMAKE_INSTALL_*
-        set(DEF_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/utf8cpp)
+        set(DEF_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_DATADIR}/cmake/utf8cpp)
     endif()
 
     install(DIRECTORY source/ DESTINATION include/utf8cpp)
