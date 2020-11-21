@@ -1,0 +1,3 @@
+# Bazel (https://bazel.build/) workspace.
+
+workspace(name = "com_github_utfcpp")
