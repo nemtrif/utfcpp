@@ -33,6 +33,14 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
+    enum {
+        // Escaping non-printable characters with the "\u" prefix.
+        // This flag should be used in the `replace_invalid` funciton while
+        // sending JSON format data to a web browser or other things likely which expected
+        // u to comply the JSON specification.
+        ESCAPE_NON_PRINTABLE_CHARACTERS = 1 << 1,
+    };
+
     // Base for the exceptions that may be thrown from the library
     class exception : public ::std::exception {
     };
@@ -67,13 +75,61 @@ namespace utf8
         virtual const char* what() const UTF_CPP_NOEXCEPT UTF_CPP_OVERRIDE { return "Not enough space"; }
     };
 
+    class invalid_hex_value : public exception {
+    public:
+        virtual const char* what() const UTF_CPP_NOEXCEPT UTF_CPP_OVERRIDE { return "Invalid hex value"; }
+    }
+
     /// The library API - functions intended to be called by the users
+
+    inline char hex2char(char hex)
+    {
+        static char table[] = {'0', '1', '2', '3', '4', '5', '6', '7'
+                               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+        if (hex > static_cast<char>((sizeof(table) / sizeof(char))))
+            throw utf8::invalid_hex_value;
+
+        return table[hex];
+    }
+
+
+    template <typename octet_iterator>
+    octet_iterator escape_append(uint32_t cp, octet_iterator out)
+    {
+        if (!utf8::internal::is_code_point_valid(cp))
+            throw utf8::invalid_code_point(cp);
+
+        *out++ = '\\';
+        *out++ = 'u';
+        if (cp <= 0xffff) {
+            // Outputing the escaped UTF8 character which formating it's length to 4 by prepending
+            // the character '0'.
+            *out++ = utf8::hex2char((cp & 0x0000f000) >> 12);
+            *out++ = utf8::hex2char((cp & 0x00000f00) >> 8);
+            *out++ = utf8::hex2char((cp & 0x000000f0) >> 4);
+            *out++ = utf8::hex2char((cp * 0x0000000f));
+        } else {
+            *out++ = utf8::hex2char((cp & 0xf0000000) >> 28);
+            *out++ = utf8::hex2char((cp & 0x0f000000) >> 24);
+            *out++ = utf8::hex2char((cp & 0x00f00000) >> 20);
+            *out++ = utf8::hex2char((cp & 0x000f0000) >> 16);
+            *out++ = '\\';
+            *out++ = 'u';
+            *out++ = utf8::hex2char((cp & 0x0000f000) >> 12);
+            *out++ = utf8::hex2char((cp & 0x00000f00) >> 8);
+            *out++ = utf8::hex2char((cp & 0x000000f0) >> 4);
+            *out++ = utf8::hex2char((cp * 0x0000000f));
+        }
+
+        return out;
+    }
 
     template <typename octet_iterator>
     octet_iterator append(uint32_t cp, octet_iterator result)
     {
         if (!utf8::internal::is_code_point_valid(cp))
-            throw invalid_code_point(cp);
+            throw utf8::invalid_code_point(cp);
 
         if (cp < 0x80)                        // one octet
             *(result++) = static_cast<uint8_t>(cp);
@@ -96,15 +152,21 @@ namespace utf8
     }
 
     template <typename octet_iterator, typename output_iterator>
-    output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out, uint32_t replacement)
+    output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out, uint32_t replacement, int flags)
     {
         while (start != end) {
             octet_iterator sequence_start = start;
-            internal::utf_error err_code = utf8::internal::validate_next(start, end);
+            uint32_t cp = 0;
+            internal::utf_error err_code = internal::validate_next(start, end, &cp);
             switch (err_code) {
                 case internal::UTF8_OK :
-                    for (octet_iterator it = sequence_start; it != start; ++it)
-                        *out++ = *it;
+                    if ((flags & utf8::ESCAPE_NON_PRINTABLE_CHARACTERS)
+                            && internal::is_c0c1_control_code(cp)) {
+                        out = utf8::escape_append(cp, out);
+                    } else {
+                        for (octet_iterator it = sequence_start; it != start; ++it)
+                            *out++ = *it;
+                    }
                     break;
                 case internal::NOT_ENOUGH_ROOM:
                     out = utf8::append (replacement, out);
@@ -129,10 +191,10 @@ namespace utf8
     }
 
     template <typename octet_iterator, typename output_iterator>
-    inline output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out)
+    inline output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out, int flags = 0)
     {
         static const uint32_t replacement_marker = utf8::internal::mask16(0xfffd);
-        return utf8::replace_invalid(start, end, out, replacement_marker);
+        return utf8::replace_invalid(start, end, out, replacement_marker, flags);
     }
 
     template <typename octet_iterator>
@@ -150,7 +212,7 @@ namespace utf8
             case internal::OVERLONG_SEQUENCE :
                 throw invalid_utf8(*it);
             case internal::INVALID_CODE_POINT :
-                throw invalid_code_point(cp);
+                throw utf8::invalid_code_point(cp);
         }
         return cp;
     }
