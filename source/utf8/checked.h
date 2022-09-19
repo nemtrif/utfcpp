@@ -76,21 +76,21 @@ namespace utf8
             throw invalid_code_point(cp);
 
         if (cp < 0x80)                        // one octet
-            *(result++) = static_cast<uint8_t>(cp);
+            *(result++) = static_cast<char>(cp);
         else if (cp < 0x800) {                // two octets
-            *(result++) = static_cast<uint8_t>((cp >> 6)            | 0xc0);
-            *(result++) = static_cast<uint8_t>((cp & 0x3f)          | 0x80);
+            *(result++) = static_cast<char>((cp >> 6)            | 0xc0);
+            *(result++) = static_cast<char>((cp & 0x3f)          | 0x80);
         }
         else if (cp < 0x10000) {              // three octets
-            *(result++) = static_cast<uint8_t>((cp >> 12)           | 0xe0);
-            *(result++) = static_cast<uint8_t>(((cp >> 6) & 0x3f)   | 0x80);
-            *(result++) = static_cast<uint8_t>((cp & 0x3f)          | 0x80);
+            *(result++) = static_cast<char>((cp >> 12)           | 0xe0);
+            *(result++) = static_cast<char>(((cp >> 6) & 0x3f)   | 0x80);
+            *(result++) = static_cast<char>((cp & 0x3f)          | 0x80);
         }
         else {                                // four octets
-            *(result++) = static_cast<uint8_t>((cp >> 18)           | 0xf0);
-            *(result++) = static_cast<uint8_t>(((cp >> 12) & 0x3f)  | 0x80);
-            *(result++) = static_cast<uint8_t>(((cp >> 6) & 0x3f)   | 0x80);
-            *(result++) = static_cast<uint8_t>((cp & 0x3f)          | 0x80);
+            *(result++) = static_cast<char>((cp >> 18)           | 0xf0);
+            *(result++) = static_cast<char>(((cp >> 12) & 0x3f)  | 0x80);
+            *(result++) = static_cast<char>(((cp >> 6) & 0x3f)   | 0x80);
+            *(result++) = static_cast<char>((cp & 0x3f)          | 0x80);
         }
         return result;
     }
@@ -148,7 +148,7 @@ namespace utf8
             case internal::INVALID_LEAD :
             case internal::INCOMPLETE_SEQUENCE :
             case internal::OVERLONG_SEQUENCE :
-                throw invalid_utf8(*it);
+                throw invalid_utf8(static_cast<uint8_t>(*it));
             case internal::INVALID_CODE_POINT :
                 throw invalid_code_point(cp);
         }
