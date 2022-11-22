@@ -75,6 +75,9 @@ namespace utf8
         if (!utf8::internal::is_code_point_valid(cp))
             throw invalid_code_point(cp);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
         if (cp < 0x80)                        // one octet
             *(result++) = static_cast<uint8_t>(cp);
         else if (cp < 0x800) {                // two octets
@@ -93,6 +96,7 @@ namespace utf8
             *(result++) = static_cast<uint8_t>((cp & 0x3f)          | 0x80);
         }
         return result;
+#pragma GCC diagnostic pop
     }
 
     template <typename octet_iterator, typename output_iterator>
