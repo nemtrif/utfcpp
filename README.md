@@ -411,7 +411,7 @@ Example of use:
 
 ```cpp
     u16string utf16string = {0x41, 0x0448, 0x65e5, 0xd834, 0xdd1e};
-    u16string_view utf16stringview(u16string);
+    u16string_view utf16stringview(utf16string);
     string u = utf16to8(utf16string);
     assert (u.size() == 10);
 ```
