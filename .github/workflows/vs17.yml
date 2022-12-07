@@ -1,0 +1,24 @@
+name: VS17
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    if: >-
+      ! contains(toJSON(github.event.commits.*.message), '[skip ci]') &&
+      ! contains(toJSON(github.event.commits.*.message), '[skip github]')
+    name: windows-vs17
+    runs-on: windows-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+    - name: create build directory
+      run: mkdir build
+    - name: configure
+      run: cd build && cmake ..
+    - name: Build
+      run: cd build && cmake --build .
+    - name: Test
+      run: cd build && ctest -VV
