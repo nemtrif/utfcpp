@@ -36,7 +36,7 @@ namespace utf8
 
     inline void append(char32_t cp, std::string& s)
     {
-        append(uint32_t(cp), std::back_inserter(s));
+        append(cp, std::back_inserter(s));
     }
 
     inline std::string utf16to8(std::u16string_view s)
