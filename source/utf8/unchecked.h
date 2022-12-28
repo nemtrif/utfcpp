@@ -80,6 +80,20 @@ namespace utf8
             return utf8::unchecked::replace_invalid(start, end, out, replacement_marker);
         }
 
+        inline std::string replace_invalid(const std::string& s, utfchar32_t replacement)
+        {
+            std::string result;
+            replace_invalid(s.begin(), s.end(), std::back_inserter(result), replacement);
+            return result;
+        }
+
+        inline std::string replace_invalid(const std::string& s)
+        {
+            std::string result;
+            replace_invalid(s.begin(), s.end(), std::back_inserter(result));
+            return result;
+        }
+
         template <typename octet_iterator>
         utfchar32_t next(octet_iterator& it)
         {

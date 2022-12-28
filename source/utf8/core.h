@@ -30,6 +30,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include <iterator>
 #include <cstring>
+#include <string>
 
 // Determine the C++ standard version.
 // If the user defines UTF_CPP_CPLUSPLUS, use that.
@@ -377,6 +378,12 @@ namespace internal
         return find_invalid(str, end); 
     }
 
+    inline std::size_t find_invalid(const std::string& s)
+    {
+        std::string::const_iterator invalid = find_invalid(s.begin(), s.end());
+        return (invalid == s.end()) ? std::string::npos : static_cast<std::size_t>(invalid - s.begin());
+    }
+
     template <typename octet_iterator>
     inline bool is_valid(octet_iterator start, octet_iterator end)
     {
@@ -388,6 +395,13 @@ namespace internal
         return (*(utf8::find_invalid(str)) == '\0');
     }
 
+    inline bool is_valid(const std::string& s)
+    {
+        return is_valid(s.begin(), s.end());
+    }
+
+
+
     template <typename octet_iterator>
     inline bool starts_with_bom (octet_iterator it, octet_iterator end)
     {
@@ -396,7 +410,12 @@ namespace internal
             ((it != end) && (utf8::internal::mask8(*it++)) == bom[1]) &&
             ((it != end) && (utf8::internal::mask8(*it))   == bom[2])
            );
-    }	
+    }
+
+    inline bool starts_with_bom(const std::string& s)
+    {
+        return starts_with_bom(s.begin(), s.end());
+    } 
 } // namespace utf8
 
 #endif // header guard

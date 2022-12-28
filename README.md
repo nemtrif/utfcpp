@@ -169,12 +169,12 @@ In case you want to look into other means of working with UTF-8 strings from C++
 
 #### utf8::append
 
-Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
+Available in version 3.0 and later. Prior to 4.0 it required a C++ 11 compiler; the requirement is lifted with 4.0.
 
 Encodes a 32 bit code point as a UTF-8 sequence of octets and appends the sequence to a UTF-8 string.
 
 ```cpp
-void append(char32_t cp, std::string& s);
+void append(utfchar32_t cp, std::string& s);
 ```
 
 `cp`: a code point to append to the string.  
@@ -705,7 +705,7 @@ This function is typically used to make sure a UTF-8 string is valid before proc
 
 #### utf8::find_invalid
 
-Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
+Available in version 3.0 and later. Prior to 4.0 it required a C++ 11 compiler; the requirement is lifted with 4.0
 
 Detects an invalid sequence within a UTF-8 string.
 
@@ -802,7 +802,7 @@ You may want to use `is_valid` to make sure that a string contains valid UTF-8 t
 
 #### utf8::is_valid
 
-Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
+Available in version 3.0 and later. Prior to 4.0 it required a C++ 11 compiler; the requirement is lifted with 4.0
 
 Checks whether a string object contains valid UTF-8 encoded text.
 
@@ -875,12 +875,12 @@ assert (bvalid == false);
 
 #### utf8::replace_invalid
 
-Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
+Available in version 3.0 and later. Prior to 4.0 it required a C++ 11 compiler; the requirement is lifted with 4.0
 
 Replaces all invalid UTF-8 sequences within a string with a replacement marker.
 
 ```cpp
-std::string replace_invalid(const std::string& s, char32_t replacement);
+std::string replace_invalid(const std::string& s, utfchar32_t replacement);
 std::string replace_invalid(const std::string& s);
 ```
 
@@ -963,7 +963,7 @@ assert (std::equal(replace_invalid_result.begin(), replace_invalid_result.end(),
 
 #### utf8::starts_with_bom
 
-Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
+Available in version 3.0 and later. Prior to 4.0 it required a C++ 11 compiler; the requirement is lifted with 4.0
 
 Checks whether a string starts with a UTF-8 byte order mark (BOM)
 

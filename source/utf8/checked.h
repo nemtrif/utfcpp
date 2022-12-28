@@ -79,6 +79,11 @@ namespace utf8
         return internal::append(cp, result);
     }
 
+    inline void append(utfchar32_t cp, std::string& s)
+    {
+        append(cp, std::back_inserter(s));
+    }
+
     template <typename octet_iterator, typename output_iterator>
     output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out, utfchar32_t replacement)
     {
@@ -117,6 +122,20 @@ namespace utf8
     {
         static const utfchar32_t replacement_marker = utf8::internal::mask16(0xfffd);
         return utf8::replace_invalid(start, end, out, replacement_marker);
+    }
+
+    inline std::string replace_invalid(const std::string& s, utfchar32_t replacement)
+    {
+        std::string result;
+        replace_invalid(s.begin(), s.end(), std::back_inserter(result), replacement);
+        return result;
+    }
+
+    inline std::string replace_invalid(const std::string& s)
+    {
+        std::string result;
+        replace_invalid(s.begin(), s.end(), std::back_inserter(result));
+        return result;
     }
 
     template <typename octet_iterator>
