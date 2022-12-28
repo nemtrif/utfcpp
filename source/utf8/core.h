@@ -29,6 +29,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_FOR_CPP_CORE_H_2675DCD0_9480_4c0c_B92A_CC14C027B731
 
 #include <iterator>
+#include <cstring>
 
 // Determine the C++ standard version.
 // If the user defines UTF_CPP_CPLUSPLUS, use that.
@@ -370,10 +371,21 @@ namespace internal
         return result;
     }
 
+    inline const char* find_invalid(const char* str)
+    {
+        const char* end = str + std::strlen(str);
+        return find_invalid(str, end); 
+    }
+
     template <typename octet_iterator>
     inline bool is_valid(octet_iterator start, octet_iterator end)
     {
         return (utf8::find_invalid(start, end) == end);
+    }
+
+    inline bool is_valid(const char* str)
+    {
+        return (*(utf8::find_invalid(str)) == '\0');
     }
 
     template <typename octet_iterator>

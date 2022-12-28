@@ -682,6 +682,29 @@ In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
 
 #### utf8::find_invalid
 
+Available in version 4.0 and later.
+
+Detects an invalid sequence within a C-style UTF-8 string.
+
+```cpp
+const char* find_invalid(const char* str);
+```
+
+`str`: a UTF-8 encoded string.
+Return value: a pointer to the first invalid octet in the UTF-8 string. In case none were found, points to the trailing zero byte.
+
+Example of use:
+
+```cpp
+const char* utf_invalid = "\xe6\x97\xa5\xd1\x88\xfa";
+const char* invalid = find_invalid(utf_invalid);
+assert ((invalid - utf_invalid) == 5);
+```
+
+This function is typically used to make sure a UTF-8 string is valid before processing it with other functions. It is especially important to call it if before doing any of the _unchecked_ operations on it.
+
+#### utf8::find_invalid
+
 Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
 
 Detects an invalid sequence within a UTF-8 string.
@@ -752,6 +775,30 @@ assert (invalid == utf_invalid + 5);
 ```
 
 This function is typically used to make sure a UTF-8 string is valid before processing it with other functions. It is especially important to call it if before doing any of the _unchecked_ operations on it.
+
+#### utf8::is_valid
+
+Available in version 4.0 and later.
+
+Checks whether a C-style string contains valid UTF-8 encoded text.
+
+```cpp
+bool is_valid(const char* str);
+```
+
+`str`: a UTF-8 encoded string.  
+Return value: `true` if the string contains valid UTF-8 encoded text; `false` if not.
+
+Example of use:
+
+```cpp
+char utf_invalid[] = "\xe6\x97\xa5\xd1\x88\xfa";
+bool bvalid = is_valid(utf_invalid);
+assert (bvalid == false);
+```
+
+You may want to use `is_valid` to make sure that a string contains valid UTF-8 text without the need to know where it fails if it is not valid.
+
 
 #### utf8::is_valid
 

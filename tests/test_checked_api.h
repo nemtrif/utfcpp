@@ -171,7 +171,9 @@ TEST(CheckedAPITests, test_replace_invalid)
 TEST(CheckedAPITests, test_find_invalid)
 {
     char utf_invalid[] = "\xe6\x97\xa5\xd1\x88\xfa";
-    char* invalid = find_invalid(utf_invalid, utf_invalid + 6);
+    const char* invalid = find_invalid(utf_invalid, utf_invalid + 6);
+    EXPECT_EQ (invalid, utf_invalid + 5);
+    invalid = find_invalid(utf_invalid);
     EXPECT_EQ (invalid, utf_invalid + 5);
 }
 
@@ -180,8 +182,12 @@ TEST(CheckedAPITests, test_is_valid)
     char utf_invalid[] = "\xe6\x97\xa5\xd1\x88\xfa";
     bool bvalid = is_valid(utf_invalid, utf_invalid + 6);
     EXPECT_FALSE (bvalid);
+    bvalid = is_valid(utf_invalid);
+    EXPECT_FALSE (bvalid);
     char utf8_with_surrogates[] = "\xe6\x97\xa5\xd1\x88\xf0\x9d\x84\x9e";
     bvalid = is_valid(utf8_with_surrogates, utf8_with_surrogates + 9);
+    EXPECT_TRUE (bvalid);
+    bvalid = is_valid(utf8_with_surrogates);
     EXPECT_TRUE (bvalid);
 }
 
