@@ -11,7 +11,7 @@ The purpose of this article is not to offer an introduction to Unicode in genera
 
 ## Examples of use
 
-### Introductionary Sample
+### Introductory Sample
 
 To illustrate the use of the library, let's start with a small but complete program that opens a file containing UTF-8 encoded text, reads it line by line, checks each line for invalid UTF-8 byte sequences, and converts it to UTF-16 encoding and back to UTF-8:
 
@@ -149,7 +149,7 @@ The function will replace any invalid UTF-8 sequence with a Unicode replacement 
 The library was designed to be:
 
 1.  Generic: for better or worse, there are many C++ string classes out there, and the library should work with as many of them as possible.
-2.  Portable: the library should be portable both accross different platforms and compilers. The only non-portable code is a small section that declares unsigned integers of different sizes: three typedefs. They can be changed by the users of the library if they don't match their platform. The default setting should work for Windows (both 32 and 64 bit), and most 32 bit and 64 bit Unix derivatives. Support for post C++03 language features is included for modern compilers at API level only, so the library should work even with pretty old compilers.
+2.  Portable: the library should be portable both across different platforms and compilers. The only non-portable code is a small section that declares unsigned integers of different sizes: three typedefs. They can be changed by the users of the library if they don't match their platform. The default setting should work for Windows (both 32 and 64 bit), and most 32 bit and 64 bit Unix derivatives. Support for post C++03 language features is included for modern compilers at API level only, so the library should work even with pretty old compilers.
 3.  Lightweight: follow the "pay only for what you use" guideline.
 4.  Unintrusive: avoid forcing any particular design or even programming style on the user. This is a library, not a framework.
 
@@ -157,7 +157,7 @@ The library was designed to be:
 
 In case you want to look into other means of working with UTF-8 strings from C++, here is the list of solutions I am aware of:
 
-1.  [ICU Library](http://icu.sourceforge.net/). It is very powerful, complete, feature-rich, mature, and widely used. Also big, intrusive, non-generic, and doesn't play well with the Standard Library. I definitelly recommend looking at ICU even if you don't plan to use it.
+1.  [ICU Library](http://icu.sourceforge.net/). It is very powerful, complete, feature-rich, mature, and widely used. Also big, intrusive, non-generic, and doesn't play well with the Standard Library. I definitely recommend looking at ICU even if you don't plan to use it.
 2.  C++11 language and library features. Still far from complete, and not easy to use.
 3.  [Glib::ustring](http://www.gtkmm.org/gtkmm2/docs/tutorial/html/ch03s04.html). A class specifically made to work with UTF-8 strings, and also feel like `std::string`. If you prefer to have yet another string class in your code, it may be worth a look. Be aware of the licensing issues, though.
 4.  Platform dependent solutions: Windows and POSIX have functions to convert strings from one encoding to another. That is only a subset of what my library offers, but if that is all you need it may be good enough.
@@ -247,7 +247,7 @@ assert (w == twochars + 3);
 
 This function is typically used to iterate through a UTF-8 encoded string.
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
 #### utf8::peek_next
 
@@ -276,7 +276,7 @@ assert (cp == 0x65e5);
 assert (w == twochars);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
 #### utf8::prior
 
@@ -345,7 +345,7 @@ In case of an invalid code point, a `utf8::invalid_code_point` exception is thro
 
 Available in version 1.0 and later.
 
-Given the iterators to two UTF-8 encoded code points in a seqence, returns the number of code points between them.
+Given the iterators to two UTF-8 encoded code points in a sequence, returns the number of code points between them.
 
 ```cpp
 template <typename octet_iterator> 
@@ -367,7 +367,7 @@ assert (dist == 2);
 
 This function is used to find the length (in code points) of a UTF-8 encoded string. The reason it is called _distance_, rather than, say, _length_ is mainly because developers are used that _length_ is an O(1) function. Computing the length of an UTF-8 string is a linear operation, and it looked better to model it after `std::distance` algorithm.
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown. If `last` does not point to the past-of-end of a UTF-8 seqence, a `utf8::not_enough_room` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown. If `last` does not point to the past-of-end of a UTF-8 sequence, a `utf8::not_enough_room` exception is thrown.
 
 #### utf8::utf16to8
 
@@ -469,7 +469,7 @@ assert (utf16result[2] == 0xd834);
 assert (utf16result[3] == 0xdd1e);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
 #### utf8::utf8to16
 
@@ -494,7 +494,7 @@ assert (utf16result[2] == 0xd834);
 assert (utf16result[3] == 0xdd1e);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
 
 #### utf8::utf8to16
@@ -525,7 +525,7 @@ assert (utf16result[2] == 0xd834);
 assert (utf16result[3] == 0xdd1e);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown. If `end` does not point to the past-of-end of a UTF-8 seqence, a `utf8::not_enough_room` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown. If `end` does not point to the past-of-end of a UTF-8 sequence, a `utf8::not_enough_room` exception is thrown.
 
 #### utf8::utf32to8
 
@@ -625,7 +625,7 @@ u32string utf32result = utf8to32(twochars);
 assert (utf32result.size() == 2);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
 #### utf8::utf8to32
 
@@ -648,7 +648,7 @@ u32string utf32result = utf8to32(twochars);
 assert (utf32result.size() == 2);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
 
 #### utf8::utf8to32
@@ -678,7 +678,7 @@ utf8to32(twochars, twochars + 5, back_inserter(utf32result));
 assert (utf32result.size() == 2);
 ```
 
-In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown. If `end` does not point to the past-of-end of a UTF-8 seqence, a `utf8::not_enough_room` exception is thrown.
+In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown. If `end` does not point to the past-of-end of a UTF-8 sequence, a `utf8::not_enough_room` exception is thrown.
 
 #### utf8::find_invalid
 
@@ -824,7 +824,7 @@ bool bvalid = is_valid(utf_invalid, utf_invalid + 6);
 assert (bvalid == false);
 ```
 
-`is_valid` is a shorthand for `find_invalid(start, end) == end;`. You may want to use it to make sure that a byte seqence is a valid UTF-8 string without the need to know where it fails if it is not valid.
+`is_valid` is a shorthand for `find_invalid(start, end) == end;`. You may want to use it to make sure that a byte sequence is a valid UTF-8 string without the need to know where it fails if it is not valid.
 
 #### utf8::replace_invalid
 
@@ -1094,9 +1094,9 @@ class iterator;
 
 `uint32_t operator * () const;` decodes the utf-8 sequence the underlying octet_iterator is pointing to and returns the code point.
 
-`bool operator == (const iterator& rhs) const;` returns `true` if the two underlaying iterators are equal.
+`bool operator == (const iterator& rhs) const;` returns `true` if the two underlying iterators are equal.
 
-`bool operator != (const iterator& rhs) const;` returns `true` if the two underlaying iterators are not equal.
+`bool operator != (const iterator& rhs) const;` returns `true` if the two underlying iterators are not equal.
 
 `iterator& operator ++ ();` the prefix increment - moves the iterator to the next UTF-8 encoded code point.
 
@@ -1219,7 +1219,7 @@ This is a faster but less safe version of `utf8::peek_next`. It does not check f
 
 Available in version 1.02 and later.
 
-Given a reference to an iterator pointing to an octet in a UTF-8 seqence, it decreases the iterator until it hits the beginning of the previous UTF-8 encoded code point and returns the 32 bits representation of the code point.
+Given a reference to an iterator pointing to an octet in a UTF-8 sequence, it decreases the iterator until it hits the beginning of the previous UTF-8 encoded code point and returns the 32 bits representation of the code point.
 
 ```cpp
 template <typename octet_iterator>
@@ -1270,7 +1270,7 @@ This is a faster but less safe version of `utf8::advance`. It does not check for
 
 Available in version 1.0 and later.
 
-Given the iterators to two UTF-8 encoded code points in a seqence, returns the number of code points between them.
+Given the iterators to two UTF-8 encoded code points in a sequence, returns the number of code points between them.
 
 ```cpp
 template <typename octet_iterator>
@@ -1460,9 +1460,9 @@ class iterator;
 
 `uint32_t operator * () const;` decodes the utf-8 sequence the underlying octet_iterator is pointing to and returns the code point.
 
-`bool operator == (const iterator& rhs) const;` returns `true` if the two underlaying iterators are equal.
+`bool operator == (const iterator& rhs) const;` returns `true` if the two underlying iterators are equal.
 
-`bool operator != (const iterator& rhs) const;` returns `true` if the two underlaying iterators are not equal.
+`bool operator != (const iterator& rhs) const;` returns `true` if the two underlying iterators are not equal.
 
 `iterator& operator ++ ();` the prefix increment - moves the iterator to the next UTF-8 encoded code point.
 
