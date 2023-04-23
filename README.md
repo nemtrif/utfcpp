@@ -416,6 +416,53 @@ Example of use:
 
 In case of invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thrown.
 
+#### utf8::utf16tou8
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts a UTF-16 encoded string to UTF-8.
+
+```cpp
+std::u8string utf16tou8(const std::u16string& s);
+```
+
+`s`: a UTF-16 encoded string.
+Return value: A UTF-8 encoded string.
+
+Example of use:
+
+```cpp
+    u16string utf16string = {0x41, 0x0448, 0x65e5, 0xd834, 0xdd1e};
+    u8string u = utf16to8(utf16string);
+    assert (u.size() == 10);
+```
+
+In case of invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thrown.
+
+#### utf8::utf16tou8
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts a UTF-16 encoded string to UTF-8.
+
+```cpp
+std::u8string utf16tou8(const std::u16string_view& s);
+```
+
+`s`: a UTF-16 encoded string.
+Return value: A UTF-8 encoded string.
+
+Example of use:
+
+```cpp
+    u16string utf16string = {0x41, 0x0448, 0x65e5, 0xd834, 0xdd1e};
+    u16string_view utf16stringview(u16string);
+    u8string u = utf16to8(utf16string);
+    assert (u.size() == 10);
+```
+
+In case of invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thrown.
+
 
 #### utf8::utf16to8
 
@@ -496,6 +543,58 @@ assert (utf16result[3] == 0xdd1e);
 
 In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
 
+#### utf8::utf8to16
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts an UTF-8 encoded string to UTF-16.
+
+```cpp
+std::u16string utf8to16(std::u8string& s);
+```
+
+`s`: an UTF-8 encoded string to convert.  
+Return value: A UTF-16 encoded string
+
+Example of use:
+
+```cpp
+std::u8string utf8_with_surrogates = "\xe6\x97\xa5\xd1\x88\xf0\x9d\x84\x9e";
+std::u16string utf16result = utf8to16(utf8_with_surrogates);
+assert (utf16result.length() == 4);
+assert (utf16result[2] == 0xd834);
+assert (utf16result[3] == 0xdd1e);
+```
+
+In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+
+
+#### utf8::utf8to16
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts an UTF-8 encoded string to UTF-16.
+
+```cpp
+std::u16string utf8to16(std::u8string_view& s);
+```
+
+`s`: an UTF-8 encoded string to convert.  
+Return value: A UTF-16 encoded string
+
+Example of use:
+
+```cpp
+std::u8string utf8_with_surrogates = "\xe6\x97\xa5\xd1\x88\xf0\x9d\x84\x9e";
+std::u8string_view utf8stringview {utf8_with_surrogates}
+std::u16string utf16result = utf8to16(utf8stringview);
+assert (utf16result.length() == 4);
+assert (utf16result[2] == 0xd834);
+assert (utf16result[3] == 0xdd1e);
+```
+
+In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+
 
 #### utf8::utf8to16
 
@@ -526,6 +625,78 @@ assert (utf16result[3] == 0xdd1e);
 ```
 
 In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown. If `end` does not point to the past-of-end of a UTF-8 seqence, a `utf8::not_enough_room` exception is thrown.
+
+#### utf8::utf32to8
+
+Available in version 3.0 and later. Requires a C++ 11 compliant compiler.
+
+Converts a UTF-32 encoded string to UTF-8.
+
+```cpp
+std::string utf32to8(const std::u32string& s);
+```
+
+`s`: a UTF-32 encoded string.  
+Return value: a UTF-8 encoded string.
+
+Example of use:
+
+```cpp
+u32string utf32string = {0x448, 0x65E5, 0x10346};
+string utf8result = utf32to8(utf32string);
+assert (utf8result.size() == 9);
+```
+
+In case of invalid UTF-32 string, a `utf8::invalid_code_point` exception is thrown.
+
+#### utf8::utf32tou8
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts a UTF-32 encoded string to UTF-8.
+
+```cpp
+std::u8string utf32to8(const std::u32string& s);
+```
+
+`s`: a UTF-32 encoded string.  
+Return value: a UTF-8 encoded string.
+
+Example of use:
+
+```cpp
+u32string utf32string = {0x448, 0x65E5, 0x10346};
+u8string utf8result = utf32to8(utf32string);
+assert (utf8result.size() == 9);
+```
+
+In case of invalid UTF-32 string, a `utf8::invalid_code_point` exception is thrown.
+
+
+#### utf8::utf32tou8
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts a UTF-32 encoded string to UTF-8.
+
+```cpp
+std::u8string utf32to8(const std::u32string_view& s);
+```
+
+`s`: a UTF-32 encoded string.  
+Return value: a UTF-8 encoded string.
+
+Example of use:
+
+```cpp
+u32string utf32string = {0x448, 0x65E5, 0x10346};
+u32string_view utf32stringview(utf32string);
+u8string utf8result = utf32to8(utf32stringview);
+assert (utf8result.size() == 9);
+```
+
+In case of invalid UTF-32 string, a `utf8::invalid_code_point` exception is thrown.
+
 
 #### utf8::utf32to8
 
@@ -603,6 +774,55 @@ assert (utf8result.size() == 9);
 ```
 
 In case of invalid UTF-32 string, a `utf8::invalid_code_point` exception is thrown.
+
+#### utf8::utf8to32
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts a UTF-8 encoded string to UTF-32.
+
+```cpp
+std::u32string utf8to32(const std::u8string& s);
+```
+
+`s`: a UTF-8 encoded string.
+Return value: a UTF-32 encoded string.
+
+Example of use:
+
+```cpp
+const std::u8string* twochars = u8"\xe6\x97\xa5\xd1\x88";
+u32string utf32result = utf8to32(twochars);
+assert (utf32result.size() == 2);
+```
+
+In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+
+
+#### utf8::utf8to32
+
+Available in version 4.0 and later. Requires a C++ 20 compliant compiler.
+
+Converts a UTF-8 encoded string to UTF-32.
+
+```cpp
+std::u32string utf8to32(const std::u8string_view& s);
+```
+
+`s`: a UTF-8 encoded string.
+Return value: a UTF-32 encoded string.
+
+Example of use:
+
+```cpp
+const u8string* twochars = u8"\xe6\x97\xa5\xd1\x88";
+const u8string_view stringview{twochars};
+u32string utf32result = utf8to32(stringview);
+assert (utf32result.size() == 2);
+```
+
+In case of an invalid UTF-8 seqence, a `utf8::invalid_utf8` exception is thrown.
+
 
 #### utf8::utf8to32
 
