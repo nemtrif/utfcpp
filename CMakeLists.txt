@@ -27,10 +27,15 @@ if(UTF8_INSTALL)
         set(DEF_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/utf8cpp)
     endif()
 
+    if(${CMAKE_VERSION} VERSION_GREATER "3.14")
+        set(OPTIONAL_ARCH_INDEPENDENT "ARCH_INDEPENDENT")
+    endif()
+    
     write_basic_package_version_file(
         ${CMAKE_CURRENT_BINARY_DIR}/utf8cppConfigVersion.cmake
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY SameMajorVersion
+        ${OPTIONAL_ARCH_INDEPENDENT}
     )
 
     configure_package_config_file(
