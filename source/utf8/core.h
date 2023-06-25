@@ -99,26 +99,22 @@ namespace internal
         return ((utf8::internal::mask8(oc) >> 6) == 0x2);
     }
 
-    template <typename u16>
-    inline bool is_lead_surrogate(u16 cp)
+    inline bool is_lead_surrogate(utfchar32_t cp)
     {
         return (cp >= LEAD_SURROGATE_MIN && cp <= LEAD_SURROGATE_MAX);
     }
 
-    template <typename u16>
-    inline bool is_trail_surrogate(u16 cp)
+    inline bool is_trail_surrogate(utfchar32_t cp)
     {
         return (cp >= TRAIL_SURROGATE_MIN && cp <= TRAIL_SURROGATE_MAX);
     }
 
-    template <typename u16>
-    inline bool is_surrogate(u16 cp)
+    inline bool is_surrogate(utfchar32_t cp)
     {
         return (cp >= LEAD_SURROGATE_MIN && cp <= TRAIL_SURROGATE_MAX);
     }
 
-    template <typename u32>
-    inline bool is_code_point_valid(u32 cp)
+    inline bool is_code_point_valid(utfchar32_t cp)
     {
         return (cp <= CODE_POINT_MAX && !utf8::internal::is_surrogate(cp));
     }
