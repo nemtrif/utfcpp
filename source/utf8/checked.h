@@ -84,6 +84,15 @@ namespace utf8
         append(cp, std::back_inserter(s));
     }
 
+    template <typename word_iterator>
+    word_iterator append16(utfchar32_t cp, word_iterator result)
+    {
+        if (!utf8::internal::is_code_point_valid(cp))
+            throw invalid_code_point(cp);
+
+        return internal::append16(cp, result);
+    }
+
     template <typename octet_iterator, typename output_iterator>
     output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out, utfchar32_t replacement)
     {

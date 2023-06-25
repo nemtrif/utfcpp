@@ -219,6 +219,58 @@ Note that `append` does not allocate any memory - it is the burden of the caller
 
 In case of an invalid code point, a `utf8::invalid_code_point` exception is thrown.
 
+#### utf8::append16
+
+Available in version 4.0 and later. Requires a C++11 compliant compiler.
+
+Encodes a 32 bit code point as a UTF-16 sequence of words and appends the sequence to a UTF-16 string.
+
+```cpp
+void append(utfchar32_t cp, std::u16string& s);
+```
+
+`cp`: a code point to append to the string.  
+`s`: a utf-16 encoded string to append the code point to.  
+
+Example of use:
+
+```cpp
+std::u16string u;
+append(0x0448, u);
+assert (u[0] == 0x0448 && u.length() == 1);
+```
+
+In case of an invalid code point, a `utf8::invalid_code_point` exception is thrown.
+
+#### utf8::append16
+
+Available in version 4.0 and later.
+
+Encodes a 32 bit code point as a UTF-16 sequence of words and appends the sequence to a UTF-16 string.
+
+```cpp
+template <typename word_iterator>
+word_iterator append16(utfchar32_t cp, word_iterator result);
+```
+
+`word_iterator`: an output iterator.  
+`cp`: a 32 bit integer representing a code point to append to the sequence.  
+`result`: an output iterator to the place in the sequence where to append the code point.  
+Return value: an iterator pointing to the place after the newly appended sequence.
+
+Example of use:
+
+```cpp
+unsigned short u[2] = {0,0};
+unsigned short* end = append16(0x0448, u);
+assert (u[0] == 0x0448 && u[1] == 0);
+```
+
+Note that `append16` does not allocate any memory - it is the burden of the caller to make sure there is enough memory allocated for the operation. To make things more interesting, `append16` can add either one or two words to the sequence. In practice, you would most often want to use `std::back_inserter` to ensure that the necessary memory is allocated.
+
+In case of an invalid code point, a `utf8::invalid_code_point` exception is thrown.
+
+
 #### utf8::next
 
 Available in version 1.0 and later.

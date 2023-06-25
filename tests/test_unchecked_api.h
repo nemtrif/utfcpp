@@ -40,6 +40,22 @@ TEST(UnCheckedAPITests, test_append)
     EXPECT_EQ (u[4], 0);
 }
 
+TEST(UnCheckedAPITests, test_append16)
+{
+    unsigned short u[5] = {0,0};
+    utf8::unchecked::append16(0x0448, u);
+    EXPECT_EQ (u[0], 0x0448);
+    EXPECT_EQ (u[1], 0x0000);
+
+    utf8::unchecked::append16(0x65e5, u);
+    EXPECT_EQ (u[0], 0x65e5);
+    EXPECT_EQ (u[1], 0x0000);
+
+    utf8::unchecked::append16(0x10346, u);
+    EXPECT_EQ (u[0], 0xd800);
+    EXPECT_EQ (u[1], 0xdf46);
+}
+
 TEST(UnCheckedAPITests, test_next)
 {
     const char* twochars = "\xe6\x97\xa5\xd1\x88";

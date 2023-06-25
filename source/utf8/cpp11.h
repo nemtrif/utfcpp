@@ -32,6 +32,11 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
+    inline void append16(utfchar32_t cp, std::u16string& s)
+    {
+        append16(cp, std::back_inserter(s));
+    }
+
     inline std::string utf16to8(const std::u16string& s)
     {
         std::string result;

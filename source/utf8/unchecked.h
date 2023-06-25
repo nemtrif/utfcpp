@@ -40,6 +40,12 @@ namespace utf8
             return internal::append(cp, result);
         }
 
+        template <typename word_iterator>
+        word_iterator append16(utfchar32_t cp, word_iterator result)
+        {
+            return internal::append16(cp, result);
+        }
+
         template <typename octet_iterator, typename output_iterator>
         output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out, utfchar32_t replacement)
         {

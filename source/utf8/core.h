@@ -119,6 +119,11 @@ namespace internal
         return (cp <= CODE_POINT_MAX && !utf8::internal::is_surrogate(cp));
     }
 
+    inline bool is_in_bmp(utfchar32_t cp)
+    {
+        return cp < utfchar32_t(0x10000);
+    }
+
     template <typename octet_iterator>
     int sequence_length(octet_iterator lead_it)
     {
@@ -343,10 +348,42 @@ namespace internal
 
     // The caller uses some other kind of output operator - not covered above
     // Note that in this case we are not able to determine octet_type
-    // so we assume it's utfchar_8; that can cause a conversion warning if we are wrong.
+    // so we assume it's utfchar8_t; that can cause a conversion warning if we are wrong.
     template <typename octet_iterator>
     octet_iterator append(utfchar32_t cp, octet_iterator result) {
         return append<octet_iterator, utfchar8_t>(cp, result);
+    }
+
+    // Internal implementation of both checked and unchecked append16() function
+    // This function will be invoked by the overloads below, as they will know
+    // the word_type.
+    template <typename word_iterator, typename word_type>
+    word_iterator append16(utfchar32_t cp, word_iterator result) {
+        if (is_in_bmp(cp))
+            *(result++) = static_cast<word_type>(cp);
+        else {
+            // Code points from the supplementary planes are encoded via surrogate pairs
+            *(result++) = static_cast<word_type>(LEAD_OFFSET + (cp >> 10));
+            *(result++) = static_cast<word_type>(TRAIL_SURROGATE_MIN + (cp & 0x3FF));
+        }
+        return result;
+    }
+
+    // Hopefully, most common case: the caller uses back_inserter
+    // i.e. append16(cp, std::back_inserter(str));
+    template<typename container_type>
+    std::back_insert_iterator<container_type> append16
+            (utfchar32_t cp, std::back_insert_iterator<container_type> result) {
+        return append16<std::back_insert_iterator<container_type>,
+            typename container_type::value_type>(cp, result);
+    }
+
+    // The caller uses some other kind of output operator - not covered above
+    // Note that in this case we are not able to determine word_type
+    // so we assume it's utfchar16_t; that can cause a conversion warning if we are wrong.
+    template <typename word_iterator>
+    word_iterator append16(utfchar32_t cp, word_iterator result) {
+        return append16<word_iterator, utfchar16_t>(cp, result);
     }
 
 } // namespace internal
