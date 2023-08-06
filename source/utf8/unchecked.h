@@ -136,6 +136,15 @@ namespace utf8
             return utf8::unchecked::next(it);
         }
 
+        template <typename word_iterator>
+        utfchar32_t next16(word_iterator& it)
+        {
+            utfchar32_t cp = utf8::internal::mask16(*it++);
+            if (utf8::internal::is_lead_surrogate(cp))
+                return (cp << 10) + *it++ + utf8::internal::SURROGATE_OFFSET;
+            return cp;
+        }
+
         template <typename octet_iterator>
         utfchar32_t prior(octet_iterator& it)
         {

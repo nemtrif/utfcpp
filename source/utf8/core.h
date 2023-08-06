@@ -305,6 +305,42 @@ namespace internal
         return utf8::internal::validate_next(it, end, ignored);
     }
 
+    template <typename word_iterator>
+    utf_error validate_next16(word_iterator& it, word_iterator end, utfchar32_t& code_point)
+    {
+        if (it == end)
+            return NOT_ENOUGH_ROOM;
+        // Save the original value of it so we can go back in case of failure
+        // Of course, it does not make much sense with i.e. stream iterators
+        word_iterator original_it = it;
+
+        utf_error err = UTF8_OK;
+
+        const utfchar16_t first_word = *it++;
+        if (!is_surrogate(first_word)) {
+            code_point = first_word;
+            return UTF8_OK;
+        }
+        else {
+            if (it == end)
+                err = NOT_ENOUGH_ROOM;
+            else if (is_lead_surrogate(first_word)) {
+                const utfchar16_t second_word = *it++;
+                if (is_trail_surrogate(second_word)) {
+                    code_point = (first_word << 10) + second_word + SURROGATE_OFFSET;
+                    return UTF8_OK;
+                } else 
+                    err = INCOMPLETE_SEQUENCE; 
+                
+            } else {
+                err = INVALID_LEAD;               
+            }
+        }
+        // error branch
+        it = original_it;
+        return err;
+    }
+
     // Internal implementation of both checked and unchecked append() function
     // This function will be invoked by the overloads below, as they will know
     // the octet_type.

@@ -167,6 +167,20 @@ namespace utf8
         return cp;
     }
 
+    template <typename word_iterator>
+    utfchar32_t next16(word_iterator& it, word_iterator end)
+    {
+        utfchar32_t cp = 0;
+        internal::utf_error err_code = utf8::internal::validate_next16(it, end, cp);
+        switch (err_code) {
+            case internal::UTF8_OK :
+                break;
+            case internal::NOT_ENOUGH_ROOM :
+                throw not_enough_room();
+        }
+        return cp;
+    }
+
     template <typename octet_iterator>
     utfchar32_t peek_next(octet_iterator it, octet_iterator end)
     {
