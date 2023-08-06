@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0.2)
+cmake_minimum_required (VERSION 3.0.2...3.27)
 project (utf8cpp VERSION 3.2.2 LANGUAGES CXX)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
