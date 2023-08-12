@@ -11,9 +11,11 @@ target_link_libraries(cpp17 PRIVATE utf8::cpp)
 target_link_libraries(apitests PRIVATE utf8::cpp)
 target_link_libraries(noexceptionstests PRIVATE utf8::cpp)
 
-target_compile_options(${PROJECT_NAME} INTERFACE
-  $<$<CXX_COMPILER_ID:MSVC>:/W4>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Wconversion>)
+foreach(test IN LISTS negative, cpp11, cpp17, apitests, noexceptiontests)
+  target_compile_options(test INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Wconversion>)
+endforeach()
 
 target_compile_options(noexceptionstests PUBLIC -fno-exceptions)
 
