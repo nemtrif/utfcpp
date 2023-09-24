@@ -155,7 +155,7 @@ The library was designed to be:
 
 #### Alternatives
 
-Here is an article I was mada aware of only recently: [The Wonderfully Terrible World of C and C++ Encoding APIs (with Some Rust)](https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape), by JeanHeyd Meneide. In the article, this library is compared with:
+Here is an article I was made aware of only recently: [The Wonderfully Terrible World of C and C++ Encoding APIs (with Some Rust)](https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape), by JeanHeyd Meneide. In the article, this library is compared with:
 
 - [simdutf](https://github.com/simdutf/simdutf)
 - [iconv](https://www.gnu.org/software/libiconv/)
