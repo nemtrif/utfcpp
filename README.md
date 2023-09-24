@@ -155,13 +155,17 @@ The library was designed to be:
 
 #### Alternatives
 
-In case you want to look into other means of working with UTF-8 strings from C++, here is the list of solutions I am aware of:
+Here is an article I was mada aware of only recently: [The Wonderfully Terrible World of C and C++ Encoding APIs (with Some Rust)](https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape), by JeanHeyd Meneide. In the article, this library is compared with:
 
-1.  [ICU Library](http://icu.sourceforge.net/). It is very powerful, complete, feature-rich, mature, and widely used. Also big, intrusive, non-generic, and doesn't play well with the Standard Library. I definitely recommend looking at ICU even if you don't plan to use it.
-2.  C++11 language and library features. Still far from complete, and not easy to use.
-3.  [Glib::ustring](http://www.gtkmm.org/gtkmm2/docs/tutorial/html/ch03s04.html). A class specifically made to work with UTF-8 strings, and also feel like `std::string`. If you prefer to have yet another string class in your code, it may be worth a look. Be aware of the licensing issues, though.
-4.  Platform dependent solutions: Windows and POSIX have functions to convert strings from one encoding to another. That is only a subset of what my library offers, but if that is all you need it may be good enough.
+- [simdutf](https://github.com/simdutf/simdutf)
+- [iconv](https://www.gnu.org/software/libiconv/)
+- [boost.text](https://github.com/tzlaine/text)
+- [ICU](https://unicode-org.github.io/icu/userguide/conversion/converters.html)
+- [encoding_rs](https://github.com/hsivonen/encoding_rs)
+- [Windows API functions for converting text between encodings](https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/)
+- [ztd.text](https://github.com/soasis/text/)
 
+The article presents author's view of the quality of the API design, but also some speed benchmarks.
 
 ## Reference
 
