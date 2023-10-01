@@ -80,6 +80,19 @@ TEST(UnCheckedAPITests, test_next)
     EXPECT_EQ (w, threechars + 9);
 }
 
+TEST(UnCheckedAPITests, test_next16)
+{
+    const utf8::utfchar16_t u[3] = {0x65e5, 0xd800, 0xdf46};
+    const utf8::utfchar16_t* w = u;
+    utf8::utfchar32_t cp = utf8::unchecked::next16(w);
+    EXPECT_EQ (cp, 0x65e5);
+    EXPECT_EQ (w, u + 1);
+
+    cp = utf8::unchecked::next16(w);
+    EXPECT_EQ (cp, 0x10346);
+    EXPECT_EQ (w, u + 3);
+}
+
 TEST(UnCheckedAPITests, test_peek_next)
 {
     const char* const cw = "\xe6\x97\xa5\xd1\x88";

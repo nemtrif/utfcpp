@@ -172,12 +172,8 @@ namespace utf8
     {
         utfchar32_t cp = 0;
         internal::utf_error err_code = utf8::internal::validate_next16(it, end, cp);
-        switch (err_code) {
-            case internal::UTF8_OK :
-                break;
-            case internal::NOT_ENOUGH_ROOM :
-                throw not_enough_room();
-        }
+        if (err_code == internal::NOT_ENOUGH_ROOM)
+            throw not_enough_room();
         return cp;
     }
 

@@ -305,6 +305,37 @@ This function is typically used to iterate through a UTF-8 encoded string.
 
 In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown.
 
+#### utf8::next16
+
+Available in version 4.0 and later.
+
+Given the iterator to the beginning of the UTF-16 sequence, it returns the code point and moves the iterator to the next position.
+
+```cpp
+template <typename word_iterator>
+utfchar32_t next16(word_iterator& it, word_iterator end);
+```
+
+`word_iterator`: an input iterator.  
+`it`: a reference to an iterator pointing to the beginning of an UTF-16 encoded code point. After the function returns, it is incremented to point to the beginning of the next code point.  
+`end`: end of the UTF-16 sequence to be processed. If `it` gets equal to `end` during the extraction of a code point, an `utf8::not_enough_room` exception is thrown.  
+Return value: the 32 bit representation of the processed UTF-16 code point.
+
+Example of use:
+
+```cpp
+const unsigned short u[3] = {0x65e5, 0xd800, 0xdf46};
+const unsigned short* w = u;
+int cp = next16(w, w + 3);
+assert (cp, 0x65e5);
+assert (w, u + 1);
+```
+
+This function is typically used to iterate through a UTF-16 encoded string.
+
+In case of an invalid UTF-16 sequence, a `utf8::invalid_utf8` exception is thrown.
+
+
 #### utf8::peek_next
 
 Available in version 2.1 and later.
@@ -1486,6 +1517,33 @@ assert (u[0] == 0xd1 && u[1] == 0x88 && u[2] == 0 && u[3] == 0 && u[4] == 0);
 
 This is a faster but less safe version of `utf8::append`. It does not check for validity of the supplied code point, and may produce an invalid UTF-8 sequence.
 
+#### utf8::unchecked::append16
+
+Available in version 4.0 and later.
+
+Encodes a 32 bit code point as a UTF-16 sequence of words and appends the sequence to a UTF-16 string.
+
+```cpp
+template <typename word_iterator>
+word_iterator append16(utfchar32_t cp, word_iterator result)
+```
+
+`cp`: A 32 bit integer representing a code point to append to the sequence.  
+`result`: An output iterator to the place in the sequence where to append the code point.  
+Return value: An iterator pointing to the place after the newly appended sequence.
+
+Example of use:
+
+```cpp
+unsigned short u[5] = {0,0};
+utf8::unchecked::append16(0x0448, u);
+assert(u[0], 0x0448);
+assert(u[1], 0x0000);
+```
+
+This is a faster but less safe version of `utf8::append`. It does not check for validity of the supplied code point, and may produce an invalid UTF-8 sequence.
+
+
 #### utf8::unchecked::next
 
 Available in version 1.0 and later.
@@ -1511,6 +1569,37 @@ assert (w == twochars + 3);
 ```
 
 This is a faster but less safe version of `utf8::next`. It does not check for validity of the supplied UTF-8 sequence.
+
+#### utf8::next16
+
+Available in version 4.0 and later.
+
+Given the iterator to the beginning of the UTF-16 sequence, it returns the code point and moves the iterator to the next position.
+
+```cpp
+template <typename word_iterator>
+utfchar32_t next16(word_iterator& it);
+```
+
+`word_iterator`: an input iterator.  
+`it`: a reference to an iterator pointing to the beginning of an UTF-16 encoded code point. After the function returns, it is incremented to point to the beginning of the next code point.  
+
+Return value: the 32 bit representation of the processed UTF-16 code point.
+
+Example of use:
+
+```cpp
+const unsigned short u[3] = {0x65e5, 0xd800, 0xdf46};
+const unsigned short* w = u;
+int cp = unchecked::next16(w);
+assert (cp, 0x65e5);
+assert (w, u + 1);
+```
+
+This function is typically used to iterate through a UTF-16 encoded string.
+
+This is a faster but less safe version of `utf8::next16`. It does not check for validity of the supplied UTF-8 sequence.
+
 
 #### utf8::unchecked::peek_next
 
