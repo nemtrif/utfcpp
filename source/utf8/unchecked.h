@@ -183,7 +183,9 @@ namespace utf8
         {
             while (start != end) {
                 utfchar32_t cp = utf8::internal::mask16(*start++);
-            // Take care of surrogate pairs first
+                if (start == end)
+                    return result;
+                // Take care of surrogate pairs first
                 if (utf8::internal::is_lead_surrogate(cp)) {
                     utfchar32_t trail_surrogate = utf8::internal::mask16(*start++);
                     cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;

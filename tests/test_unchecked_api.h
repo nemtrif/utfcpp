@@ -153,6 +153,11 @@ TEST(UnCheckedAPITests, test_utf16to8)
     string utf8result;
     utf8::unchecked::utf16to8(utf16string, utf16string + 5, back_inserter(utf8result));
     EXPECT_EQ (utf8result.size(), 10);
+
+    utf8result.clear();
+    unsigned short highsurrogateonly[] = {0xd800};
+    utf8::unchecked::utf16to8(highsurrogateonly, highsurrogateonly + 1, back_inserter(utf8result));
+    EXPECT_TRUE(true); // we didn't crash
 }
 
 TEST(UnCheckedAPITests, test_utf8to16)
