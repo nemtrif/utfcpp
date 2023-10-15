@@ -1,67 +1,48 @@
-cmake_minimum_required (VERSION 3.0.2...3.27)
-project (utf8cpp VERSION 3.2.5 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.5...3.27)
+project (utf8cpp 
+         VERSION 4.0.0
+         LANGUAGES CXX
+         DESCRIPTION "C++ portable library for working with utf-8 encoding")
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(IS_ROOT_PROJECT ON)
-else()
-    set(IS_ROOT_PROJECT OFF)
-endif()
+add_library(${PROJECT_NAME} INTERFACE)
 
-option(UTF8_TESTS "Enable tests for UTF8-CPP" ${IS_ROOT_PROJECT})
-option(UTF8_INSTALL "Enable installation for UTF8-CPP" ${IS_ROOT_PROJECT})
-option(UTF8_SAMPLES "Enable building samples for UTF8-CPP" ${IS_ROOT_PROJECT})
+include(GNUInstallDirs)
 
-add_library(utf8cpp INTERFACE)
 target_include_directories(utf8cpp INTERFACE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/source>"
     $<INSTALL_INTERFACE:include/utf8cpp>
 )
-add_library(utf8::cpp ALIAS utf8cpp)
 
-if(UTF8_INSTALL)
-    include(CMakePackageConfigHelpers)
-    if(MSVC)
-        set(DEF_INSTALL_CMAKE_DIR CMake)
-    else()
-        include(GNUInstallDirs) # define CMAKE_INSTALL_*
-        set(DEF_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/utf8cpp)
-    endif()
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
 
-    if(${CMAKE_VERSION} VERSION_GREATER "3.14")
-        set(OPTIONAL_ARCH_INDEPENDENT "ARCH_INDEPENDENT")
-    endif()
-    
-    write_basic_package_version_file(
-        ${CMAKE_CURRENT_BINARY_DIR}/utf8cppConfigVersion.cmake
-        VERSION ${PROJECT_VERSION}
-        COMPATIBILITY SameMajorVersion
-        ${OPTIONAL_ARCH_INDEPENDENT}
-    )
+install(TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION include COMPONENT Development
+    BUNDLE DESTINATION bin COMPONENT Runtime
+)
 
-    configure_package_config_file(
-        ${PROJECT_SOURCE_DIR}/utf8cppConfig.cmake.in
-        ${CMAKE_CURRENT_BINARY_DIR}/utf8cppConfig.cmake
-        INSTALL_DESTINATION ${DEF_INSTALL_CMAKE_DIR}
-    )
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
+)
 
-    install(DIRECTORY source/ DESTINATION include/utf8cpp)
-    install(TARGETS utf8cpp EXPORT utf8cppTargets)
-    install(EXPORT utf8cppTargets DESTINATION ${DEF_INSTALL_CMAKE_DIR})
-    install(
-        FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/utf8cppConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/utf8cppConfigVersion.cmake
-        DESTINATION
-        ${DEF_INSTALL_CMAKE_DIR}
-    )
-endif()
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-if(UTF8_SAMPLES)
-    add_executable(docsample ${PROJECT_SOURCE_DIR}/samples/docsample.cpp)
-    target_link_libraries(docsample PRIVATE utf8::cpp)
-endif()
+install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+              "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-if(UTF8_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
+install(FILES ${PROJECT_SOURCE_DIR}/source/utf8.h DESTINATION include)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/source/utf8 DESTINATION include)
