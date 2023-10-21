@@ -3,11 +3,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nemtrif/utf8cpp:3.1.3
+      - image: nemtrif/utf8cpp:4.0.0
     steps:
       - checkout
       - run: git submodule update --init --recursive --remote
-      - run: mkdir build
-      - run: cd build && cmake ..
-      - run: cd build && cmake --build .
-      - run: cd build && ctest -VV
+      - run: mkdir -p tests/build
+      - run: cd tests/build && cmake ..
+      - run: cd tests/build && cmake --build .
+      - run: cd tests/build && ctest -VV

@@ -37,6 +37,14 @@ TEST(CPP11APITests, test_append)
     EXPECT_EQ (u.length(), 4);
 }
 
+TEST(CPP11APITests, test_append16)
+{
+    u16string u;
+    append16(0x0448, u);
+    EXPECT_EQ (u[0], char16_t(0x0448));
+    EXPECT_EQ (u.length(), 1);
+}
+
 TEST(CPP11APITests, test_utf16to8)
 {
     u16string utf16string = {0x41, 0x0448, 0x65e5, 0xd834, 0xdd1e};
