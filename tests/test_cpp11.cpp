@@ -50,6 +50,11 @@ TEST(CPP11APITests, test_utf16to8)
     u16string utf16string = {0x41, 0x0448, 0x65e5, 0xd834, 0xdd1e};
     string u = utf16to8(utf16string);
     EXPECT_EQ (u.size(), 10);
+
+    u16string h16 = u"h!";
+    string h8;
+    utf8::unchecked::utf16to8(h16.begin(), h16.end(), std::back_inserter(h8));
+    EXPECT_EQ (h8, "h!");
 }
 
 TEST(CPP11APITests, test_utf8to16)
