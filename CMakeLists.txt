@@ -10,7 +10,7 @@ include(GNUInstallDirs)
 
 target_include_directories(utf8cpp INTERFACE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/source>"
-    $<INSTALL_INTERFACE:include/utf8cpp>
+    $<INSTALL_INTERFACE:include>
 )
 
 include(CMakePackageConfigHelpers)
