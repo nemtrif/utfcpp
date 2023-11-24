@@ -736,7 +736,8 @@ u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_itera
 
 `octet_iterator`: an input iterator.  
 `u16bit_iterator`: an output iterator.  
-`start`: an iterator pointing to the beginning of the UTF-8 encoded string to convert. < br /> `end`: an iterator pointing to pass-the-end of the UTF-8 encoded string to convert.  
+`start`: an iterator pointing to the beginning of the UTF-8 encoded string to convert. 
+`end`: an iterator pointing to pass-the-end of the UTF-8 encoded string to convert.  
 `result`: an output iterator to the place in the UTF-16 string where to append the result of conversion.  
 Return value: An iterator pointing to the place after the appended UTF-16 string.
 
@@ -1950,7 +1951,8 @@ template <typename u16bit_iterator, typename octet_iterator>
 u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_iterator result);
 ```
 
-`start`: an iterator pointing to the beginning of the UTF-8 encoded string to convert. < br /> `end`: an iterator pointing to pass-the-end of the UTF-8 encoded string to convert.  
+`start`: an iterator pointing to the beginning of the UTF-8 encoded string to convert.
+`end`: an iterator pointing to pass-the-end of the UTF-8 encoded string to convert.  
 `result`: an output iterator to the place in the UTF-16 string where to append the result of conversion.  
 Return value: An iterator pointing to the place after the appended UTF-16 string.
 
