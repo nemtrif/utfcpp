@@ -1639,7 +1639,7 @@ class iterator;
 <!-- TOC --><a name="member-functions"></a>
 ##### Member functions
 
-`iterator();` the deafult constructor; the underlying octet_iterator is constructed with its default constructor.
+`iterator();` the default constructor; the underlying octet_iterator is constructed with its default constructor.
 
 `explicit iterator (const octet_iterator& octet_it, const octet_iterator& range_start, const octet_iterator& range_end);` a constructor that initializes the underlying octet_iterator with octet_it and sets the range in which the iterator is considered valid.
 
