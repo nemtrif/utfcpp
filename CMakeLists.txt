@@ -13,11 +13,16 @@ target_include_directories(utf8cpp INTERFACE
     $<INSTALL_INTERFACE:include/utf8cpp>
 )
 
+if(${CMAKE_VERSION} VERSION_GREATER "3.14")
+    set(OPTIONAL_ARCH_INDEPENDENT "ARCH_INDEPENDENT")
+endif()
+
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
+    ${OPTIONAL_ARCH_INDEPENDENT}
 )
 
 install(TARGETS ${PROJECT_NAME}
