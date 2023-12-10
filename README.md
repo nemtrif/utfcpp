@@ -112,8 +112,13 @@ I came up with a small, C++98 compatible generic library in order to handle UTF-
 <!-- TOC --><a name="installation"></a>
 ## Installation
 
-The recommended way to use the library is to download an official release and copy the content of source directory into location of your project's header files.
-If you use CMake for your builds, I still recommend just copying the files into your project, but if you want you can use the CMakeList.txt file included in the project.
+This is a header-only library and the supported way of deploying it is:
+- Download a release from https://github.com/nemtrif/utfcpp/releases into a temporary directory
+- Unzip the release
+- Copy the content of utfcpp/source file into the directory where you keep include files for your project
+
+
+The CMakeList.txt file was originally made for testing purposes only, but unfortunatelly over time I accepted contributions that added install target. *This is not a supported way of installing the utfcpp library* and I am considering removing the CMakeList.txt in a future release.
 
 <!-- TOC --><a name="examples-of-use"></a>
 ## Examples of use
