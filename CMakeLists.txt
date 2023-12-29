@@ -1,7 +1,7 @@
 # This file is deprecated and will be removed in a future release
 # Please see the instructions for installation in README.md file
 
-cmake_minimum_required (VERSION 3.5...3.27)
+cmake_minimum_required (VERSION 3.14...3.27)
 project (utf8cpp 
          VERSION 4.0.4
          LANGUAGES CXX
@@ -21,6 +21,7 @@ write_basic_package_version_file(
     "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
+    ARCH_INDEPENDENT
 )
 
 install(TARGETS ${PROJECT_NAME}
