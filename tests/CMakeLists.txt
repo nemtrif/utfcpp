@@ -11,7 +11,7 @@ if (MSVC)
     add_compile_options(/W4)
 else()
     # additional warnings
-    add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
+    add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion)
 endif()
 
 add_executable(negative negative.cpp)
