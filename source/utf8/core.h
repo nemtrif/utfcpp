@@ -43,9 +43,14 @@ DEALINGS IN THE SOFTWARE.
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
     #define UTF_CPP_OVERRIDE override
     #define UTF_CPP_NOEXCEPT noexcept
+    #define UTF_CPP_STATIC_ASSERT(condition) static_assert(condition, "UTFCPP static assert");
 #else // C++ 98/03
     #define UTF_CPP_OVERRIDE
     #define UTF_CPP_NOEXCEPT throw()
+    // Simulate static_assert:
+    template <bool Condition> struct StaticAssert {static void assert() {int static_assert_impl[(Condition ? 1 : -1)];} };
+    template <> struct StaticAssert<true> {static void assert() {}};
+    #define UTF_CPP_STATIC_ASSERT(condition) StaticAssert<condition>::assert();
 #endif // C++ 11 or later
 
 
@@ -308,6 +313,10 @@ namespace internal
     template <typename word_iterator>
     utf_error validate_next16(word_iterator& it, word_iterator end, utfchar32_t& code_point)
     {
+        // Make sure the iterator dereferences a large enough type
+        typedef typename std::iterator_traits<word_iterator>::value_type word_type;
+        UTF_CPP_STATIC_ASSERT(sizeof(word_type) >= sizeof(utfchar16_t));
+        // Check the edge case:
         if (it == end)
             return NOT_ENOUGH_ROOM;
         // Save the original value of it so we can go back in case of failure
@@ -395,6 +404,7 @@ namespace internal
     // the word_type.
     template <typename word_iterator, typename word_type>
     word_iterator append16(utfchar32_t cp, word_iterator result) {
+        UTF_CPP_STATIC_ASSERT(sizeof(word_type) >= sizeof(utfchar16_t));
         if (is_in_bmp(cp))
             *(result++) = static_cast<word_type>(cp);
         else {
