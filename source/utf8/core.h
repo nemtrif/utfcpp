@@ -43,10 +43,12 @@ DEALINGS IN THE SOFTWARE.
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
     #define UTF_CPP_OVERRIDE override
     #define UTF_CPP_NOEXCEPT noexcept
+    #define UTF_CPP_CONSTEXPR constexpr
     #define UTF_CPP_STATIC_ASSERT(condition) static_assert(condition, "UTFCPP static assert");
 #else // C++ 98/03
     #define UTF_CPP_OVERRIDE
     #define UTF_CPP_NOEXCEPT throw()
+    #define UTF_CPP_CONSTEXPR const
     // Simulate static_assert:
     template <bool Condition> struct StaticAssert {static void assert() {int static_assert_impl[(Condition ? 1 : -1)];} };
     template <> struct StaticAssert<true> {static void assert() {}};
@@ -77,15 +79,15 @@ namespace internal
     // Unicode constants
     // Leading (high) surrogates: 0xd800 - 0xdbff
     // Trailing (low) surrogates: 0xdc00 - 0xdfff
-    const utfchar16_t LEAD_SURROGATE_MIN  = 0xd800u;
-    const utfchar16_t LEAD_SURROGATE_MAX  = 0xdbffu;
-    const utfchar16_t TRAIL_SURROGATE_MIN = 0xdc00u;
-    const utfchar16_t TRAIL_SURROGATE_MAX = 0xdfffu;
-    const utfchar16_t LEAD_OFFSET         = 0xd7c0u;       // LEAD_SURROGATE_MIN - (0x10000 >> 10)
-    const utfchar32_t SURROGATE_OFFSET    = 0xfca02400u;   // 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN
+    UTF_CPP_CONSTEXPR utfchar16_t LEAD_SURROGATE_MIN  = 0xd800u;
+    UTF_CPP_CONSTEXPR utfchar16_t LEAD_SURROGATE_MAX  = 0xdbffu;
+    UTF_CPP_CONSTEXPR utfchar16_t TRAIL_SURROGATE_MIN = 0xdc00u;
+    UTF_CPP_CONSTEXPR utfchar16_t TRAIL_SURROGATE_MAX = 0xdfffu;
+    UTF_CPP_CONSTEXPR utfchar16_t LEAD_OFFSET         = 0xd7c0u;       // LEAD_SURROGATE_MIN - (0x10000 >> 10)
+    UTF_CPP_CONSTEXPR utfchar32_t SURROGATE_OFFSET    = 0xfca02400u;   // 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN
 
     // Maximum valid value for a Unicode code point
-    const utfchar32_t CODE_POINT_MAX      = 0x0010ffffu;
+    UTF_CPP_CONSTEXPR utfchar32_t CODE_POINT_MAX      = 0x0010ffffu;
 
     template<typename octet_type>
     inline utfchar8_t mask8(octet_type oc)
@@ -106,17 +108,17 @@ namespace internal
 
     inline bool is_lead_surrogate(utfchar32_t cp)
     {
-        return (cp >= LEAD_SURROGATE_MIN && cp <= LEAD_SURROGATE_MAX);
+        return (cp >= static_cast<utfchar32_t>(LEAD_SURROGATE_MIN) && cp <= static_cast<utfchar32_t>(LEAD_SURROGATE_MAX));
     }
 
     inline bool is_trail_surrogate(utfchar32_t cp)
     {
-        return (cp >= TRAIL_SURROGATE_MIN && cp <= TRAIL_SURROGATE_MAX);
+        return (cp >= static_cast<utfchar32_t>(TRAIL_SURROGATE_MIN) && cp <= static_cast<utfchar32_t>(TRAIL_SURROGATE_MAX));
     }
 
     inline bool is_surrogate(utfchar32_t cp)
     {
-        return (cp >= LEAD_SURROGATE_MIN && cp <= TRAIL_SURROGATE_MAX);
+        return (cp >= static_cast<utfchar32_t>(LEAD_SURROGATE_MIN) && cp <= static_cast<utfchar32_t>(TRAIL_SURROGATE_MAX));
     }
 
     inline bool is_code_point_valid(utfchar32_t cp)
@@ -148,15 +150,15 @@ namespace internal
     inline bool is_overlong_sequence(utfchar32_t cp, int length)
     {
         if (cp < 0x80) {
-            if (length != 1) 
+            if (length != 1)
                 return true;
         }
         else if (cp < 0x800) {
-            if (length != 2) 
+            if (length != 2)
                 return true;
         }
         else if (cp < 0x10000) {
-            if (length != 3) 
+            if (length != 3)
                 return true;
         }
         return false;
@@ -194,7 +196,7 @@ namespace internal
     template <typename octet_iterator>
     utf_error get_sequence_2(octet_iterator& it, octet_iterator end, utfchar32_t& code_point)
     {
-        if (it == end) 
+        if (it == end)
             return NOT_ENOUGH_ROOM;
 
         code_point = utf8::internal::mask8(*it);
@@ -211,7 +213,7 @@ namespace internal
     {
         if (it == end)
             return NOT_ENOUGH_ROOM;
-            
+
         code_point = utf8::internal::mask8(*it);
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
@@ -295,7 +297,7 @@ namespace internal
                 else
                     err = OVERLONG_SEQUENCE;
             }
-            else 
+            else
                 err = INVALID_CODE_POINT;
         }
 
@@ -335,14 +337,14 @@ namespace internal
                 err = NOT_ENOUGH_ROOM;
             else if (is_lead_surrogate(first_word)) {
                 const utfchar16_t second_word = *it++;
-                if (is_trail_surrogate(second_word)) {
-                    code_point = static_cast<utfchar32_t>(first_word << 10) + second_word + SURROGATE_OFFSET;
+                if (is_trail_surrogate(static_cast<utfchar32_t>(second_word))) {
+                    code_point = static_cast<utfchar32_t>(first_word << 10) +  static_cast<utfchar32_t>(second_word) + SURROGATE_OFFSET;
                     return UTF8_OK;
-                } else 
-                    err = INCOMPLETE_SEQUENCE; 
-                
+                } else
+                    err = INCOMPLETE_SEQUENCE;
+
             } else {
-                err = INVALID_LEAD;               
+                err = INVALID_LEAD;
             }
         }
         // error branch
@@ -374,7 +376,7 @@ namespace internal
         }
         return result;
     }
-    
+
     // One of the following overloads will be invoked from the API calls
 
     // A simple (but dangerous) case: the caller appends byte(s) to a char array
@@ -437,7 +439,7 @@ namespace internal
     /// The library API - functions intended to be called by the users
 
     // Byte order mark
-    const utfchar8_t bom[] = {0xef, 0xbb, 0xbf};
+    UTF_CPP_CONSTEXPR utfchar8_t bom[] = {0xef, 0xbb, 0xbf};
 
     template <typename octet_iterator>
     octet_iterator find_invalid(octet_iterator start, octet_iterator end)
@@ -454,7 +456,7 @@ namespace internal
     inline const char* find_invalid(const char* str)
     {
         const char* end = str + std::strlen(str);
-        return find_invalid(str, end); 
+        return find_invalid(str, end);
     }
 
     inline std::size_t find_invalid(const std::string& s)
@@ -494,9 +496,8 @@ namespace internal
     inline bool starts_with_bom(const std::string& s)
     {
         return starts_with_bom(s.begin(), s.end());
-    } 
+    }
 } // namespace utf8
 
 #endif // header guard
-
 
