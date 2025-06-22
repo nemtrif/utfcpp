@@ -43,12 +43,10 @@ DEALINGS IN THE SOFTWARE.
 #if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
     #define UTF_CPP_OVERRIDE override
     #define UTF_CPP_NOEXCEPT noexcept
-    #define UTF_CPP_CONSTEXPR constexpr
     #define UTF_CPP_STATIC_ASSERT(condition) static_assert(condition, "UTFCPP static assert");
 #else // C++ 98/03
     #define UTF_CPP_OVERRIDE
     #define UTF_CPP_NOEXCEPT throw()
-    #define UTF_CPP_CONSTEXPR const
     // Simulate static_assert:
     template <bool Condition> struct StaticAssert {static void assert() {int static_assert_impl[(Condition ? 1 : -1)];} };
     template <> struct StaticAssert<true> {static void assert() {}};
@@ -79,15 +77,15 @@ namespace internal
     // Unicode constants
     // Leading (high) surrogates: 0xd800 - 0xdbff
     // Trailing (low) surrogates: 0xdc00 - 0xdfff
-    UTF_CPP_CONSTEXPR utfchar16_t LEAD_SURROGATE_MIN  = 0xd800u;
-    UTF_CPP_CONSTEXPR utfchar16_t LEAD_SURROGATE_MAX  = 0xdbffu;
-    UTF_CPP_CONSTEXPR utfchar16_t TRAIL_SURROGATE_MIN = 0xdc00u;
-    UTF_CPP_CONSTEXPR utfchar16_t TRAIL_SURROGATE_MAX = 0xdfffu;
-    UTF_CPP_CONSTEXPR utfchar16_t LEAD_OFFSET         = 0xd7c0u;       // LEAD_SURROGATE_MIN - (0x10000 >> 10)
-    UTF_CPP_CONSTEXPR utfchar32_t SURROGATE_OFFSET    = 0xfca02400u;   // 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN
+    const utfchar16_t LEAD_SURROGATE_MIN  = 0xd800u;
+    const utfchar16_t LEAD_SURROGATE_MAX  = 0xdbffu;
+    const utfchar16_t TRAIL_SURROGATE_MIN = 0xdc00u;
+    const utfchar16_t TRAIL_SURROGATE_MAX = 0xdfffu;
+    const utfchar16_t LEAD_OFFSET         = 0xd7c0u;       // LEAD_SURROGATE_MIN - (0x10000 >> 10)
+    const utfchar32_t SURROGATE_OFFSET    = 0xfca02400u;   // 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN
 
     // Maximum valid value for a Unicode code point
-    UTF_CPP_CONSTEXPR utfchar32_t CODE_POINT_MAX      = 0x0010ffffu;
+    const utfchar32_t CODE_POINT_MAX      = 0x0010ffffu;
 
     template<typename octet_type>
     inline utfchar8_t mask8(octet_type oc)
@@ -439,7 +437,7 @@ namespace internal
     /// The library API - functions intended to be called by the users
 
     // Byte order mark
-    UTF_CPP_CONSTEXPR utfchar8_t bom[] = {0xef, 0xbb, 0xbf};
+    const utfchar8_t bom[] = {0xef, 0xbb, 0xbf};
 
     template <typename octet_iterator>
     octet_iterator find_invalid(octet_iterator start, octet_iterator end)

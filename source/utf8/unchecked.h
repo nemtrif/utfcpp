@@ -82,7 +82,7 @@ namespace utf8
         template <typename octet_iterator, typename output_iterator>
         inline output_iterator replace_invalid(octet_iterator start, octet_iterator end, output_iterator out)
         {
-            static const utfchar32_t replacement_marker =  static_cast<utfchar32_t>(utf8::internal::mask16(0xfffd));
+            static const utfchar32_t replacement_marker = static_cast<utfchar32_t>(utf8::internal::mask16(0xfffd));
             return utf8::unchecked::replace_invalid(start, end, out, replacement_marker);
         }
 
