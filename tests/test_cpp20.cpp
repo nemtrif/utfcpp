@@ -1,4 +1,4 @@
-#include "../extern/ftest/ftest.h"
+#include "ftest.h"
 #define UTF_CPP_CPLUSPLUS 202002L
 #include "utf8.h"
 #include <string>
