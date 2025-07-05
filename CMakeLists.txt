@@ -1,6 +1,3 @@
-# This file is deprecated and will be removed in a future release
-# Please see the instructions for installation in README.md file
-
 cmake_minimum_required (VERSION 3.14...3.27)
 project (utf8cpp 
          VERSION 4.0.6
@@ -51,3 +48,9 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
 install(FILES ${PROJECT_SOURCE_DIR}/source/utf8.h DESTINATION include/utf8cpp)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/source/utf8 DESTINATION
         include/utf8cpp)
+
+option(UTF8CPP_ENABLE_TESTS "Build and enable tests" OFF)
+if(UTF8CPP_ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
