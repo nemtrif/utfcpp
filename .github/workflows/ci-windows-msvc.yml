@@ -1,0 +1,23 @@
+name: CI Windows MSVC
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake (with tests)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DUTF8CPP_ENABLE_TESTS=ON -S .
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        working-directory: build
+        run: ctest -VV --build-config Release
