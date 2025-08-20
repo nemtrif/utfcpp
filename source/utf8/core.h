@@ -92,6 +92,7 @@ namespace internal
     {
         return static_cast<utfchar8_t>(0xff & oc);
     }
+
     template<typename u16_type>
     inline utfchar16_t mask16(u16_type oc)
     {
@@ -186,7 +187,7 @@ namespace internal
         if (it == end)
             return NOT_ENOUGH_ROOM;
 
-        code_point = utf8::internal::mask8(*it);
+        code_point = static_cast<utfchar32_t>(utf8::internal::mask8(*it));
 
         return UTF8_OK;
     }
@@ -197,7 +198,7 @@ namespace internal
         if (it == end)
             return NOT_ENOUGH_ROOM;
 
-        code_point = utf8::internal::mask8(*it);
+        code_point = static_cast<utfchar32_t>(utf8::internal::mask8(*it));
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
@@ -212,7 +213,7 @@ namespace internal
         if (it == end)
             return NOT_ENOUGH_ROOM;
 
-        code_point = utf8::internal::mask8(*it);
+        code_point = static_cast<utfchar32_t>(utf8::internal::mask8(*it));
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
@@ -231,7 +232,7 @@ namespace internal
         if (it == end)
            return NOT_ENOUGH_ROOM;
 
-        code_point = utf8::internal::mask8(*it);
+        code_point = static_cast<utfchar32_t>(utf8::internal::mask8(*it));
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
