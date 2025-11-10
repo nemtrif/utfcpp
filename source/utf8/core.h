@@ -47,10 +47,8 @@ DEALINGS IN THE SOFTWARE.
 #else // C++ 98/03
     #define UTF_CPP_OVERRIDE
     #define UTF_CPP_NOEXCEPT throw()
-    // Simulate static_assert:
-    template<bool> struct UtfCppCompileTimeAssert;
-    template<> struct UtfCppCompileTimeAssert  <true> { };
-    #define UTF_CPP_STATIC_ASSERT(condition)  (UtfCppCompileTimeAssert <(condition) != 0>())
+    // Not worth simulating static_assert:
+    #define UTF_CPP_STATIC_ASSERT(condition) (void)(condition);
 #endif // C++ 11 or later
 
 
