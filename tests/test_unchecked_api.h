@@ -185,7 +185,7 @@ TEST(UnCheckedAPITests, test_utf8to16)
 
 TEST(UnCheckedAPITests, test_replace_invalid)
 {
-    char invalid_sequence[] = "a\x80\xe0\xa0\xc0\xaf\xed\xa0\x80z";
+    char invalid_sequence[] = "a\x80\xe0\xa0\xc0\xAF\xED\xa0\x80z";
     vector<char> replace_invalid_result;
     utf8::unchecked::replace_invalid (invalid_sequence, invalid_sequence + sizeof(invalid_sequence), std::back_inserter(replace_invalid_result), '?');
     bool bvalid = utf8::is_valid(replace_invalid_result.begin(), replace_invalid_result.end());
@@ -193,6 +193,17 @@ TEST(UnCheckedAPITests, test_replace_invalid)
     const char fixed_invalid_sequence[] = "a????z";
     EXPECT_EQ (sizeof(fixed_invalid_sequence), replace_invalid_result.size());
     EXPECT_TRUE (std::equal(replace_invalid_result.begin(), replace_invalid_result.begin() + sizeof(fixed_invalid_sequence), fixed_invalid_sequence));
+
+    char invalid_sequence2[] = "\xD9\x85\xD8\x80\xE0\xA0\xC0\xAF\xED\xA0\x80z";
+    bvalid = utf8::is_valid(invalid_sequence2);
+    EXPECT_FALSE (bvalid);
+    replace_invalid_result.clear();
+    utf8::unchecked::replace_invalid (invalid_sequence2, invalid_sequence2 + sizeof(invalid_sequence2), std::back_inserter(replace_invalid_result), '?');
+    bvalid = utf8::is_valid(replace_invalid_result.begin(), replace_invalid_result.end());
+    EXPECT_TRUE (bvalid);
+    const char fixed_invalid_sequence2[] = "\xD9\x85\xD8\x80???z";
+    EXPECT_EQ (sizeof(fixed_invalid_sequence2), replace_invalid_result.size());
+    EXPECT_TRUE (std::equal(replace_invalid_result.begin(), replace_invalid_result.begin() + sizeof(fixed_invalid_sequence2), fixed_invalid_sequence2));
 }
 
 #endif
