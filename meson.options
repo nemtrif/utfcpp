@@ -1,0 +1,4 @@
+option('install',
+       type: 'boolean',
+       value: false,
+       description: 'install utfcpp headers and pkg-config file')
