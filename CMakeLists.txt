@@ -54,3 +54,8 @@ if(UTF8CPP_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+option(UTF8CPP_ENABLE_BENCHMARKS "Build and enable benchmarks" OFF)
+if(UTF8CPP_ENABLE_BENCHMARKS)
+    add_subdirectory(bench)
+endif()
