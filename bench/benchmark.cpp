@@ -47,6 +47,15 @@ int main() {
     end = std::chrono::high_resolution_clock::now();
     auto duration_unchecked = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
+    // Benchmark find_invalid
+    start = std::chrono::high_resolution_clock::now();
+    std::size_t invalid_index_sum = 0;
+    for (int i = 0; i < iterations; ++i) {
+        invalid_index_sum += utf8::find_invalid(utf8_data);
+    }
+    end = std::chrono::high_resolution_clock::now();
+    auto duration_find_invalid = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
     // Calculate total data processed
     size_t total_bytes = static_cast<size_t>(iterations) * utf8_data.size();
     double total_mb = static_cast<double>(total_bytes) / (1024.0 * 1024.0);
@@ -61,6 +70,10 @@ int main() {
     double unchecked_time_sec = static_cast<double>(duration_unchecked.count()) / 1e6;
     double unchecked_mbs = total_mb / unchecked_time_sec;
     std::cout << "utf8::unchecked::next," << duration_unchecked.count() << "," << total_mb << "," << unchecked_mbs << "," << sum << std::endl;
+
+    double find_invalid_time_sec = static_cast<double>(duration_find_invalid.count()) / 1e6;
+    double find_invalid_mbs = total_mb / find_invalid_time_sec;
+    std::cout << "utf8::find_invalid," << duration_find_invalid.count() << "," << total_mb << "," << find_invalid_mbs << "," << invalid_index_sum << std::endl;
 
     return 0;
 }
