@@ -394,6 +394,10 @@ namespace internal
                 it = original_it;
                 return OVERLONG_SEQUENCE;
             }
+            if (lead == 0xF4 && trail1 > 0x8F) {
+                it = original_it;
+                return INVALID_CODE_POINT;
+            }
             if (lead >= 0xF5) {
                 it = original_it;
                 return INVALID_CODE_POINT;

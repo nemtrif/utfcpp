@@ -87,6 +87,12 @@ TEST(NegativeTests, Section2_BoundaryConditionUTF8)
     EXPECT_EQ(out, "?");
     EXPECT_TRUE(is_valid(out.begin(), out.end()));
 
+    in = "\xF4\x90\x80\x80"; // U+110000 (invalid code point above Unicode maximum)
+    out.clear();
+    replace_invalid(in.begin(), in.end(), std::back_inserter(out), '?');
+    EXPECT_EQ(out, "?");
+    EXPECT_TRUE(is_valid(out.begin(), out.end()));
+
     in = "\xF8\xBF\xBF\xBF\xBF"; // U+03FFFFFF (last 5-byte sequence, invalid)
     out.clear();
     replace_invalid(in.begin(), in.end(), std::back_inserter(out), '?');
