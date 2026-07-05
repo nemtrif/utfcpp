@@ -101,7 +101,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("commit1")
     parser.add_argument("commit2")
-    parser.add_argument("--runs", type=int, default=10,
+    parser.add_argument("--runs", type=int, default=100,
                         help="Number of runs per scenario")
     args = parser.parse_args()
 
@@ -149,9 +149,9 @@ def main():
             change = pct_change(old, new)
 
             if change > 2:
-                verdict = "Commit2 is slower"
-            elif change < -2:
                 verdict = "Commit2 is faster"
+            elif change < -2:
+                verdict = "Commit2 is slower"
             else:
                 verdict = "Similar performance"
 
@@ -159,9 +159,9 @@ def main():
 
     print("\n" + "=" * 80)
     print("Interpretation:")
-    print("  Change > +2%   → Commit2 is slower")
-    print("  Change < -2%   → Commit2 is faster")
-    print("  Otherwise      → Similar performance")
+    print("  Change > +2%    Commit2 is slower")
+    print("  Change < -2%    Commit2 is faster")
+    print("  Otherwise       Similar performance")
     print("=" * 80)
 
     # Cleanup
