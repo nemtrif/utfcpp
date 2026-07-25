@@ -3,7 +3,6 @@ import argparse
 import subprocess
 import tempfile
 import shutil
-import os
 import statistics
 from pathlib import Path
 
@@ -15,6 +14,7 @@ from pathlib import Path
 
 SCENARIOS = ["ascii", "cyrillic", "mixed"]
 FUNCTIONS = ["utf8::next", "utf8::unchecked::next", "utf8::find_invalid"]
+BENCHMARK_SOURCE = Path(__file__).with_name("benchmark.cpp")
 
 def run(cmd, cwd=None):
     result = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE,
@@ -28,6 +28,7 @@ def checkout_commit(commit_ref):
     archive = subprocess.Popen(["git", "archive", commit_ref],
                                stdout=subprocess.PIPE)
     subprocess.run(["tar", "-xC", tempdir], stdin=archive.stdout)
+    shutil.copy2(BENCHMARK_SOURCE, Path(tempdir) / "bench" / "benchmark.cpp")
     return tempdir
 
 def build_benchmark(source_dir):
@@ -65,21 +66,22 @@ def parse_csv_output(text):
         results[func] = {"time_us": time_us, "mbps": mbps}
     return results
 
-def run_benchmarks(exe, runs):
-    scenario_results = {s: {f: {"time_us": [], "mbps": []}
-                            for f in FUNCTIONS}
-                        for s in SCENARIOS}
+def new_scenario_results():
+    return {s: {f: {"time_us": [], "mbps": []} for f in FUNCTIONS}
+            for s in SCENARIOS}
 
-    for scenario in SCENARIOS:
-        print(f"  Running scenario: {scenario}")
-        for _ in range(runs):
-            out = run([str(exe), scenario])
-            parsed = parse_csv_output(out)
-            for func in FUNCTIONS:
-                if func in parsed:
-                    scenario_results[scenario][func]["time_us"].append(parsed[func]["time_us"])
-                    scenario_results[scenario][func]["mbps"].append(parsed[func]["mbps"])
+def add_benchmark_result(scenario_results, scenario, exe):
+    parsed = parse_csv_output(run([str(exe), scenario]))
+    missing_functions = set(FUNCTIONS) - parsed.keys()
+    if missing_functions:
+        missing = ", ".join(sorted(missing_functions))
+        raise RuntimeError(f"Benchmark output is missing: {missing}")
 
+    for func in FUNCTIONS:
+        scenario_results[scenario][func]["time_us"].append(parsed[func]["time_us"])
+        scenario_results[scenario][func]["mbps"].append(parsed[func]["mbps"])
+
+def median_results(scenario_results):
     medians = {}
     for scenario in SCENARIOS:
         medians[scenario] = {}
@@ -91,6 +93,21 @@ def run_benchmarks(exe, runs):
                     "mbps": statistics.median(vals["mbps"])
                 }
     return medians
+
+def run_benchmarks(exe1, exe2, runs):
+    results1 = new_scenario_results()
+    results2 = new_scenario_results()
+
+    for scenario in SCENARIOS:
+        print(f"  Running scenario: {scenario}")
+        for run_index in range(runs):
+            executions = [(results1, exe1), (results2, exe2)]
+            if run_index % 2:
+                executions.reverse()
+            for results, exe in executions:
+                add_benchmark_result(results, scenario, exe)
+
+    return median_results(results1), median_results(results2)
 
 def pct_change(old, new):
     if old == 0:
@@ -104,6 +121,8 @@ def main():
     parser.add_argument("--runs", type=int, default=100,
                         help="Number of runs per scenario")
     args = parser.parse_args()
+    if args.runs < 1:
+        parser.error("--runs must be at least 1")
 
     commit1_sha = run(["git", "rev-parse", args.commit1]).strip()[:7]
     commit2_sha = run(["git", "rev-parse", args.commit2]).strip()[:7]
@@ -114,59 +133,53 @@ def main():
     print("")
 
     tempdirs = []
+    try:
+        print(f"Building {commit1_sha}...")
+        src1 = checkout_commit(args.commit1)
+        tempdirs.append(src1)
+        exe1 = build_benchmark(src1)
 
-    # Build commit1
-    print(f"Building {commit1_sha}...")
-    src1 = checkout_commit(args.commit1)
-    tempdirs.append(src1)
-    exe1 = build_benchmark(src1)
-    results1 = run_benchmarks(exe1, args.runs)
+        print(f"Building {commit2_sha}...")
+        src2 = checkout_commit(args.commit2)
+        tempdirs.append(src2)
+        exe2 = build_benchmark(src2)
 
-    # Build commit2
-    print(f"Building {commit2_sha}...")
-    src2 = checkout_commit(args.commit2)
-    tempdirs.append(src2)
-    exe2 = build_benchmark(src2)
-    results2 = run_benchmarks(exe2, args.runs)
+        print("Running interleaved benchmark samples...")
+        results1, results2 = run_benchmarks(exe1, exe2, args.runs)
 
-    # Print comparison
-    print("=" * 80)
-    print(f"Benchmark Comparison (median of {args.runs} runs): {commit1_sha} vs {commit2_sha}")
-    print("=" * 80)
+        print("=" * 80)
+        print(f"Benchmark Comparison (median of {args.runs} runs): {commit1_sha} vs {commit2_sha}")
+        print("=" * 80)
 
-    for scenario in SCENARIOS:
-        print(f"\nScenario: {scenario.upper()}")
-        print("-" * 80)
-        print(f"{'Function':<30} {'Commit1 MB/s':>15} {'Commit2 MB/s':>15} {'Change (%)':>12}  Result")
-        print("-" * 80)
+        for scenario in SCENARIOS:
+            print(f"\nScenario: {scenario.upper()}")
+            print("-" * 80)
+            print(f"{'Function':<30} {'Commit1 MB/s':>15} {'Commit2 MB/s':>15} {'Change (%)':>12}  Result")
+            print("-" * 80)
 
-        for func in FUNCTIONS:
-            if func not in results1[scenario] or func not in results2[scenario]:
-                continue
+            for func in FUNCTIONS:
+                old = results1[scenario][func]["mbps"]
+                new = results2[scenario][func]["mbps"]
+                change = pct_change(old, new)
 
-            old = results1[scenario][func]["mbps"]
-            new = results2[scenario][func]["mbps"]
-            change = pct_change(old, new)
+                if change > 2:
+                    verdict = "Commit2 is faster"
+                elif change < -2:
+                    verdict = "Commit2 is slower"
+                else:
+                    verdict = "Similar performance"
 
-            if change > 2:
-                verdict = "Commit2 is faster"
-            elif change < -2:
-                verdict = "Commit2 is slower"
-            else:
-                verdict = "Similar performance"
+                print(f"{func:<30} {old:>15.2f} {new:>15.2f} {change:>12.2f}  {verdict}")
 
-            print(f"{func:<30} {old:>15.2f} {new:>15.2f} {change:>12.2f}  {verdict}")
-
-    print("\n" + "=" * 80)
-    print("Interpretation:")
-    print("  Change > +2%    Commit2 is slower")
-    print("  Change < -2%    Commit2 is faster")
-    print("  Otherwise       Similar performance")
-    print("=" * 80)
-
-    # Cleanup
-    for d in tempdirs:
-        shutil.rmtree(d, ignore_errors=True)
+        print("\n" + "=" * 80)
+        print("Interpretation:")
+        print("  Change > +2%    Commit2 is faster")
+        print("  Change < -2%    Commit2 is slower")
+        print("  Otherwise       Similar performance")
+        print("=" * 80)
+    finally:
+        for d in tempdirs:
+            shutil.rmtree(d, ignore_errors=True)
 
 if __name__ == "__main__":
     main()
