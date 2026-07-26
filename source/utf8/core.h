@@ -144,23 +144,6 @@ namespace internal
             return 0;
     }
 
-    inline bool is_overlong_sequence(utfchar32_t cp, int length)
-    {
-        if (cp < 0x80) {
-            if (length != 1)
-                return true;
-        }
-        else if (cp < 0x800) {
-            if (length != 2)
-                return true;
-        }
-        else if (cp < 0x10000) {
-            if (length != 3)
-                return true;
-        }
-        return false;
-    }
-
     enum utf_error {UTF8_OK, NOT_ENOUGH_ROOM, INVALID_LEAD, INCOMPLETE_SEQUENCE, OVERLONG_SEQUENCE, INVALID_CODE_POINT};
 
     /// Helper for get_sequence_x
