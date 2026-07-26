@@ -180,15 +180,16 @@ namespace internal
             return NOT_ENOUGH_ROOM;
 
         const utfchar8_t lead = utf8::internal::mask8(*it);
-        if (lead == 0xC0 || lead == 0xC1) {
-            return OVERLONG_SEQUENCE;
-        }
         code_point = static_cast<utfchar32_t>(lead);
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
         const utfchar8_t trail1 = utf8::internal::mask8(*it);
         code_point = ((code_point << 6) & 0x7ff) + (trail1 & 0x3f);
+
+        if (lead == 0xC0 || lead == 0xC1) {
+            return OVERLONG_SEQUENCE;
+        }
 
         return UTF8_OK;
     }
@@ -205,18 +206,19 @@ namespace internal
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
         const utfchar8_t trail1 = utf8::internal::mask8(*it);
-        if (lead == 0xE0 && trail1 < 0xA0) {
-            return OVERLONG_SEQUENCE;
-        }
-        if (lead == 0xED && trail1 > 0x9F) {
-            return INVALID_CODE_POINT;
-        }
         code_point = ((code_point << 12) & 0xffff) + ((trail1 << 6) & 0xfff);
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
         const utfchar8_t trail2 = utf8::internal::mask8(*it);
         code_point = static_cast<utfchar32_t>(code_point + (trail2 & 0x3f));
+
+        if (lead == 0xE0 && trail1 < 0xA0) {
+            return OVERLONG_SEQUENCE;
+        }
+        if (lead == 0xED && trail1 > 0x9F) {
+            return INVALID_CODE_POINT;
+        }
 
         return UTF8_OK;
     }
@@ -228,20 +230,11 @@ namespace internal
            return NOT_ENOUGH_ROOM;
 
         const utfchar8_t lead = utf8::internal::mask8(*it);
-        if (lead >= 0xF5) {
-            return INVALID_CODE_POINT;
-        }
         code_point = static_cast<utfchar32_t>(lead);
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
 
         const utfchar8_t trail1 = utf8::internal::mask8(*it);
-        if (lead == 0xF0 && trail1 < 0x90) {
-            return OVERLONG_SEQUENCE;
-        }
-        if (lead == 0xF4 && trail1 > 0x8F) {
-            return INVALID_CODE_POINT;
-        }
         code_point = ((code_point << 18) & 0x1fffff) + ((trail1 << 12) & 0x3ffff);
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
@@ -253,6 +246,16 @@ namespace internal
 
         const utfchar8_t trail3 = utf8::internal::mask8(*it);
         code_point = static_cast<utfchar32_t>(code_point + (trail3 & 0x3f));
+
+        if (lead == 0xF0 && trail1 < 0x90) {
+            return OVERLONG_SEQUENCE;
+        }
+        if (lead == 0xF4 && trail1 > 0x8F) {
+            return INVALID_CODE_POINT;
+        }
+        if (lead >= 0xF5) {
+            return INVALID_CODE_POINT;
+        }
 
         return UTF8_OK;
     }
@@ -598,4 +601,3 @@ namespace internal
 } // namespace utf8
 
 #endif // header guard
-

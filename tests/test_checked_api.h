@@ -87,6 +87,28 @@ TEST(CheckedAPITests, test_next)
     EXPECT_EQ (w, threechars + 9);
 }
 
+TEST(CheckedAPITests, test_next_error_precedence)
+{
+    const char truncated_overlong[] = {static_cast<char>(0xe0), static_cast<char>(0x80)};
+    const char* it = truncated_overlong;
+    EXPECT_THROW(next(it, truncated_overlong + 2), not_enough_room);
+    EXPECT_EQ(it, truncated_overlong);
+
+    const char invalid_trailing_byte[] = {
+        static_cast<char>(0xed), static_cast<char>(0xa0), static_cast<char>(0x41)
+    };
+    it = invalid_trailing_byte;
+    EXPECT_THROW(next(it, invalid_trailing_byte + 3), invalid_utf8);
+    EXPECT_EQ(it, invalid_trailing_byte);
+
+    const char invalid_trailing_byte_after_invalid_range[] = {
+        static_cast<char>(0xf4), static_cast<char>(0x90), static_cast<char>(0x80), static_cast<char>(0x41)
+    };
+    it = invalid_trailing_byte_after_invalid_range;
+    EXPECT_THROW(next(it, invalid_trailing_byte_after_invalid_range + 4), invalid_utf8);
+    EXPECT_EQ(it, invalid_trailing_byte_after_invalid_range);
+}
+
 TEST(CheckedAPITests, test_next16)
 {
     const utfchar16_t u[3] = {0x65e5, 0xd800, 0xdf46};
