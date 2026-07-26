@@ -110,17 +110,17 @@ int main(int argc, char** argv) {
 
     std::cout << "Function,Time_us,MB_Processed,MB_per_sec,Sum\n";
 
-    double checked_time_sec = duration_checked.count() / 1e6;
+    double checked_time_sec = static_cast<double>(duration_checked.count()) / 1e6;
     double checked_mbs = total_mb / checked_time_sec;
     std::cout << "utf8::next," << duration_checked.count() << ","
               << total_mb << "," << checked_mbs << ",N/A\n";
 
-    double unchecked_time_sec = duration_unchecked.count() / 1e6;
+    double unchecked_time_sec = static_cast<double>(duration_unchecked.count()) / 1e6;
     double unchecked_mbs = total_mb / unchecked_time_sec;
     std::cout << "utf8::unchecked::next," << duration_unchecked.count() << ","
               << total_mb << "," << unchecked_mbs << "," << sum << "\n";
 
-    double find_invalid_time_sec = duration_find_invalid.count() / 1e6;
+    double find_invalid_time_sec = static_cast<double>(duration_find_invalid.count()) / 1e6;
     double find_invalid_mbs = total_mb / find_invalid_time_sec;
     std::cout << "utf8::find_invalid," << duration_find_invalid.count() << ","
               << total_mb << "," << find_invalid_mbs << "," << invalid_index_sum << "\n";
