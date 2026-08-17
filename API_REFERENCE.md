@@ -221,7 +221,7 @@ assert (w, u + 1);
 
 This function is typically used to iterate through a UTF-16 encoded string.
 
-In case of an invalid UTF-16 sequence, a `utf8::invalid_utf8` exception is thrown.
+In case of an invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thrown.
 
 
 <!-- TOC --><a name="utf8peek_next"></a>
