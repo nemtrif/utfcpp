@@ -120,6 +120,25 @@ TEST(CheckedAPITests, test_next16)
     cp = next16(w, w + 2);
     EXPECT_EQ (cp, 0x10346);
     EXPECT_EQ (w, u + 3);
+
+    w = u;
+    EXPECT_THROW(next16(w, w), not_enough_room);
+    EXPECT_EQ(w, u);
+
+    const utfchar16_t lead_at_end[] = {0xd800};
+    w = lead_at_end;
+    EXPECT_THROW(next16(w, lead_at_end + 1), not_enough_room);
+    EXPECT_EQ(w, lead_at_end);
+
+    const utfchar16_t trail_first[] = {0xdc00, 0x0041};
+    w = trail_first;
+    EXPECT_THROW(next16(w, trail_first + 2), invalid_utf16);
+    EXPECT_EQ(w, trail_first);
+
+    const utfchar16_t unpaired_lead[] = {0xd800, 0x0041};
+    w = unpaired_lead;
+    EXPECT_THROW(next16(w, unpaired_lead + 2), invalid_utf16);
+    EXPECT_EQ(w, unpaired_lead);
 }
 
 TEST(CheckedAPITests, test_peek_next)

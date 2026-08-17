@@ -174,6 +174,8 @@ namespace utf8
         internal::utf_error err_code = utf8::internal::validate_next16(it, end, cp);
         if (err_code == internal::NOT_ENOUGH_ROOM)
             throw not_enough_room();
+        else if (err_code != internal::UTF8_OK)
+            throw invalid_utf16(static_cast<utfchar16_t>(*it));
         return cp;
     }
 
