@@ -120,6 +120,22 @@ TEST(CheckedAPITests, test_next16)
     cp = next16(w, w + 2);
     EXPECT_EQ (cp, 0x10346);
     EXPECT_EQ (w, u + 3);
+
+    // Invalid UTF-16 must throw, not silently return U+0000 without advancing.
+    // A trail surrogate where a lead is expected:
+    const utfchar16_t trail_first[2] = {0xdc00, 0x0041};
+    const utfchar16_t* tf = trail_first;
+    EXPECT_THROW(next16(tf, tf + 2), invalid_utf16);
+
+    // A lead surrogate not followed by a trail surrogate:
+    const utfchar16_t unpaired_lead[2] = {0xd800, 0x0041};
+    const utfchar16_t* ul = unpaired_lead;
+    EXPECT_THROW(next16(ul, ul + 2), invalid_utf16);
+
+    // A lead surrogate with no room for its trailing word:
+    const utfchar16_t lead_at_end[1] = {0xd800};
+    const utfchar16_t* le = lead_at_end;
+    EXPECT_THROW(next16(le, le + 1), not_enough_room);
 }
 
 TEST(CheckedAPITests, test_peek_next)
