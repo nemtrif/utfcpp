@@ -141,6 +141,16 @@ TEST(CheckedAPITests, test_next16)
     EXPECT_EQ(w, unpaired_lead);
 }
 
+TEST(CheckedAPITests, test_next16_lone_trail_surrogate)
+{
+    // The trail_first case above, minus the trailing word: what follows a lone
+    // trail surrogate must not change the error.
+    const utfchar16_t trail_at_end[] = {0xdc00};
+    const utfchar16_t* w = trail_at_end;
+    EXPECT_THROW(next16(w, trail_at_end + 1), invalid_utf16);
+    EXPECT_EQ(w, trail_at_end);
+}
+
 TEST(CheckedAPITests, test_peek_next)
 {
     const char* const cw = "\xe6\x97\xa5\xd1\x88";

@@ -433,19 +433,20 @@ namespace internal
             code_point = first_word;
             return UTF8_OK;
         }
+        else if (!is_lead_surrogate(first_word)) {
+            // Invalid regardless of what follows, so check before the range end
+            err = INVALID_LEAD;
+        }
         else {
             if (it == end)
                 err = NOT_ENOUGH_ROOM;
-            else if (is_lead_surrogate(first_word)) {
+            else {
                 const utfchar16_t second_word = *it++;
                 if (is_trail_surrogate(static_cast<utfchar32_t>(second_word))) {
                     code_point = static_cast<utfchar32_t>(first_word << 10) +  static_cast<utfchar32_t>(second_word) + SURROGATE_OFFSET;
                     return UTF8_OK;
                 } else
                     err = INCOMPLETE_SEQUENCE;
-
-            } else {
-                err = INVALID_LEAD;
             }
         }
         // error branch
