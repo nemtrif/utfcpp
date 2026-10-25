@@ -17,6 +17,7 @@
   - [utf8::utf32to8](#utf8utf32to8)
   - [utf8::utf8to32](#utf8utf8to32)
   - [utf8::find_invalid](#utf8find_invalid)
+  - [utf8::find_invalid16](#utf8find_invalid16)
   - [utf8::is_valid](#utf8is_valid)
   - [utf8::replace_invalid](#utf8replace_invalid)
   - [utf8::starts_with_bom](#utf8starts_with_bom)
@@ -944,6 +945,35 @@ assert (invalid == utf_invalid + 5);
 ```
 
 This function is typically used to make sure a UTF-8 string is valid before processing it with other functions. It is especially important to call it if before doing any of the _unchecked_ operations on it.
+
+<!-- TOC --><a name="utf8find_invalid16"></a>
+#### utf8::find_invalid16
+<!-- TOC --><a name="word_iterator-find_invalid16word_iterator-start-word_iterator-end"></a>
+##### word_iterator find_invalid16(word_iterator start, word_iterator end)
+
+Available in version 4.3 and later.
+
+Detects an invalid sequence within a UTF-16 string.
+
+```cpp
+template <typename word_iterator>
+word_iterator find_invalid16(word_iterator start, word_iterator end);
+```
+
+`word_iterator`: an input iterator.<br>
+`start`: an iterator pointing to the beginning of the UTF-16 string to test for validity.<br>
+`end`: an iterator pointing to pass-the-end of the UTF-16 string to test for validity.<br>
+Return value: an iterator pointing to the first invalid word in the UTF-16 string. In case none were found, equals `end`.
+
+Example of use:
+
+```cpp
+utfchar16_t utf_invalid[] = {0x65e5, 0xd800, 0x0041};
+utfchar16_t* invalid = find_invalid16(utf_invalid, utf_invalid + 3);
+assert (invalid == utf_invalid + 1);
+```
+
+This function is typically used to make sure a UTF-16 string is valid before processing it with other functions.
 
 
 <!-- TOC --><a name="const-char-find_invalidconst-char-str"></a>
@@ -1884,4 +1914,3 @@ assert (*un_it == 0x10346);
 ```
 
 This is an unchecked version of `utf8::iterator`. It is faster in many cases, but offers no validity or range checks.
-

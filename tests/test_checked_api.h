@@ -257,6 +257,18 @@ TEST(CheckedAPITests, test_find_invalid)
     EXPECT_EQ (invalid, utf_invalid + 5);
 }
 
+TEST(CheckedAPITests, test_find_invalid16)
+{
+    const utfchar16_t utf_valid[] = {0x65e5, 0xd800, 0xdf46};
+    EXPECT_EQ (find_invalid16(utf_valid, utf_valid + 3), utf_valid + 3);
+
+    const utfchar16_t unpaired_lead[] = {0x65e5, 0xd800, 0x0041};
+    EXPECT_EQ (find_invalid16(unpaired_lead, unpaired_lead + 3), unpaired_lead + 1);
+
+    const utfchar16_t unpaired_trail[] = {0x65e5, 0xdc00};
+    EXPECT_EQ (find_invalid16(unpaired_trail, unpaired_trail + 2), unpaired_trail + 1);
+}
+
 TEST(CheckedAPITests, test_is_valid)
 {
     char utf_invalid[] = "\xe6\x97\xa5\xd1\x88\xfa";
