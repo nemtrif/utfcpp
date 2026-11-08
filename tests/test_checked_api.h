@@ -248,6 +248,32 @@ TEST(CheckedAPITests, test_replace_invalid)
     EXPECT_TRUE (std::equal(replace_invalid_result.begin(), replace_invalid_result.begin() + sizeof(fixed_invalid_sequence), fixed_invalid_sequence));
 }
 
+TEST(CheckedAPITests, test_replace_invalid16)
+{
+    const utfchar16_t invalid_sequence[] = {0x65e5, 0xd800, 0x0041};
+    vector<utfchar16_t> replace_invalid_result;
+    replace_invalid16(
+        invalid_sequence, invalid_sequence + 3, back_inserter(replace_invalid_result), '?');
+    const utfchar16_t fixed_invalid_sequence[] = {0x65e5, 0x003f, 0x0041};
+    EXPECT_TRUE (std::equal(
+        replace_invalid_result.begin(),
+        replace_invalid_result.end(),
+        fixed_invalid_sequence));
+
+    replace_invalid_result.clear();
+    replace_invalid16(
+        invalid_sequence, invalid_sequence + 3, back_inserter(replace_invalid_result));
+    const utfchar16_t fixed_invalid_sequence_default[] = {0x65e5, 0xfffd, 0x0041};
+    EXPECT_TRUE (std::equal(
+        replace_invalid_result.begin(),
+        replace_invalid_result.end(),
+        fixed_invalid_sequence_default));
+    EXPECT_THROW(
+        replace_invalid16(
+            invalid_sequence, invalid_sequence + 3, back_inserter(replace_invalid_result), 0xd800),
+        invalid_code_point);
+}
+
 TEST(CheckedAPITests, test_find_invalid)
 {
     char utf_invalid[] = "\xe6\x97\xa5\xd1\x88\xfa";

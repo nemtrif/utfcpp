@@ -21,6 +21,7 @@
   - [utf8::is_valid](#utf8is_valid)
   - [utf8::is_valid16](#utf8is_valid16)
   - [utf8::replace_invalid](#utf8replace_invalid)
+  - [utf8::replace_invalid16](#utf8replace_invalid16)
   - [utf8::starts_with_bom](#utf8starts_with_bom)
 - [Types From utf8 Namespace](#types-from-utf8-namespace)
   - [utf8::exception](#utf8exception)
@@ -1275,6 +1276,43 @@ assert (bvalid);
 const string fixed_invalid_sequence = "a????z";
 assert(fixed_invalid_sequence, replace_invalid_result);
 ```
+
+<!-- TOC --><a name="utf8replace_invalid16"></a>
+#### utf8::replace_invalid16
+
+Available in version 4.3 and later.
+
+Replaces all invalid UTF-16 sequences within a string with a replacement marker.
+
+```cpp
+template <typename word_iterator, typename output_iterator>
+output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out, utfchar32_t replacement);
+template <typename word_iterator, typename output_iterator>
+output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out);
+```
+
+`word_iterator`: an input iterator.<br>
+`output_iterator`: an output iterator.<br>
+`start`: an iterator pointing to the beginning of the UTF-16 string to look for invalid UTF-16 sequences.<br>
+`end`: an iterator pointing to pass-the-end of the UTF-16 string to look for invalid UTF-16 sequences.<br>
+`out`: An output iterator to the range where the result of replacement is stored.<br>
+`replacement`: A Unicode code point for the replacement marker. The version without this parameter assumes the value `0xfffd`<br>
+Return value: An iterator pointing to the place after the UTF-16 string with replaced invalid sequences.
+
+Example of use:
+
+```cpp
+utfchar16_t invalid_sequence[] = {0x65e5, 0xd800, 0x0041};
+vector<utfchar16_t> replace_invalid_result;
+replace_invalid16(
+    invalid_sequence, invalid_sequence + 3, back_inserter(replace_invalid_result), '?');
+bool bvalid = is_valid16(replace_invalid_result.begin(), replace_invalid_result.end());
+assert (bvalid);
+```
+
+`replace_invalid16` does not perform in-place replacement of invalid sequences. Rather, it produces a copy of the original string with the invalid sequences replaced with a replacement marker. Therefore, `out` must not be in the `[start, end]` range.
+
+If a replacement is required and the supplied replacement marker is not a valid Unicode code point, `utf8::invalid_code_point` is thrown.
 
 <!-- TOC --><a name="utf8starts_with_bom"></a>
 #### utf8::starts_with_bom

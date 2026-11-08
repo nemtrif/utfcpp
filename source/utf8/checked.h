@@ -147,6 +147,44 @@ namespace utf8
         return result;
     }
 
+    template <typename word_iterator, typename output_iterator>
+    output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out, utfchar32_t replacement)
+    {
+        while (start != end) {
+            const word_iterator sequence_start = start;
+            utfchar32_t code_point_unused = 0;
+            const internal::utf_error err_code = utf8::internal::validate_next16(start, end, code_point_unused);
+            switch (err_code) {
+                case internal::UTF8_OK :
+                    for (word_iterator it = sequence_start; it != start; ++it)
+                        *out++ = *it;
+                    break;
+                case internal::NOT_ENOUGH_ROOM:
+                    out = utf8::append16(replacement, out);
+                    start = end;
+                    break;
+                case internal::INVALID_LEAD:
+                case internal::INCOMPLETE_SEQUENCE:
+                    out = utf8::append16(replacement, out);
+                    ++start;
+                    break;
+                default:
+                // can't reach here
+                    break;
+            }
+
+        }
+
+        return out;
+    }
+
+    template <typename word_iterator, typename output_iterator>
+    output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out)
+    {
+        static const utfchar32_t replacement_marker = static_cast<utfchar32_t>(utf8::internal::mask16(0xfffd));
+        return utf8::replace_invalid16(start, end, out, replacement_marker);
+    }
+
     template <typename octet_iterator>
     utfchar32_t next(octet_iterator& it, octet_iterator end)
     {
