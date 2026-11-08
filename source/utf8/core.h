@@ -597,6 +597,12 @@ namespace internal
         return result;
     }
 
+    template <typename word_iterator>
+    inline bool is_valid16(word_iterator start, word_iterator end)
+    {
+        return (utf8::find_invalid16(start, end) == end);
+    }
+
 
     template <typename octet_iterator>
     inline bool starts_with_bom (octet_iterator it, octet_iterator end)

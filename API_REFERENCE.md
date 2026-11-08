@@ -19,6 +19,7 @@
   - [utf8::find_invalid](#utf8find_invalid)
   - [utf8::find_invalid16](#utf8find_invalid16)
   - [utf8::is_valid](#utf8is_valid)
+  - [utf8::is_valid16](#utf8is_valid16)
   - [utf8::replace_invalid](#utf8replace_invalid)
   - [utf8::starts_with_bom](#utf8starts_with_bom)
 - [Types From utf8 Namespace](#types-from-utf8-namespace)
@@ -1076,6 +1077,36 @@ assert (bvalid == false);
 ```
 
 `is_valid` is a shorthand for `find_invalid(start, end) == end;`. You may want to use it to make sure that a byte sequence is a valid UTF-8 string without the need to know where it fails if it is not valid.
+
+
+<!-- TOC --><a name="utf8is_valid16"></a>
+#### utf8::is_valid16
+<!-- TOC --><a name="bool-is_valid16word_iterator-start-word_iterator-end"></a>
+##### bool is_valid16(word_iterator start, word_iterator end)
+
+Available in version 4.3 and later.
+
+Checks whether a sequence of words is a valid UTF-16 string.
+
+```cpp
+template <typename word_iterator>
+bool is_valid16(word_iterator start, word_iterator end);
+```
+
+`word_iterator`: an input iterator.<br>
+`start`: an iterator pointing to the beginning of the UTF-16 string to test for validity.<br>
+`end`: an iterator pointing to pass-the-end of the UTF-16 string to test for validity.<br>
+Return value: `true` if the sequence is a valid UTF-16 string; `false` if not.
+
+Example of use:
+
+```cpp
+utfchar16_t utf_invalid[] = {0x65e5, 0xd800, 0x0041};
+bool bvalid = is_valid16(utf_invalid, utf_invalid + 3);
+assert (bvalid == false);
+```
+
+`is_valid16` is a shorthand for `find_invalid16(start, end) == end;`. You may want to use it to make sure that a word sequence is a valid UTF-16 string without the need to know where it fails if it is not valid.
 
 
 <!-- TOC --><a name="bool-is_validconst-char-str"></a>
