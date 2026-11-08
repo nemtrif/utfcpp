@@ -46,6 +46,13 @@ TEST(CPP17APITests, test_find_invalid)
     EXPECT_EQ (invalid, 5);
 }
 
+TEST(CPP17APITests, test_find_invalid16)
+{
+    u16string utf_invalid = {0x65e5, 0xd800, 0x0041};
+    u16string_view utf_invalid_view(utf_invalid);
+    EXPECT_EQ (find_invalid16(utf_invalid_view), 1);
+}
+
 TEST(CPP17APITests, test_is_valid)
 {
     string_view utf_invalid = "\xe6\x97\xa5\xd1\x88\xfa";
@@ -54,6 +61,15 @@ TEST(CPP17APITests, test_is_valid)
     string_view utf8_with_surrogates = "\xe6\x97\xa5\xd1\x88\xf0\x9d\x84\x9e";
     bvalid = is_valid(utf8_with_surrogates);
     EXPECT_TRUE (bvalid);
+}
+
+TEST(CPP17APITests, test_is_valid16)
+{
+    u16string utf_invalid = {0x65e5, 0xd800, 0x0041};
+    u16string_view utf_invalid_view(utf_invalid);
+    EXPECT_FALSE (is_valid16(utf_invalid_view));
+    u16string utf_valid = {0x65e5, 0xd800, 0xdf46};
+    EXPECT_TRUE (is_valid16(u16string_view(utf_valid)));
 }
 
 TEST(CPP17APITests, test_replace_invalid)

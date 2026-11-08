@@ -85,6 +85,17 @@ namespace utf8
         return result;
     }
 
+    inline std::size_t find_invalid16(const std::u16string_view& s)
+    {
+        std::u16string_view::const_iterator invalid = find_invalid16(s.begin(), s.end());
+        return (invalid == s.end()) ? std::u16string_view::npos : static_cast<std::size_t>(invalid - s.begin());
+    }
+
+    inline bool is_valid16(const std::u16string_view& s)
+    {
+        return is_valid16(s.begin(), s.end());
+    }
+
     inline bool starts_with_bom(std::string_view s)
     {
         return starts_with_bom(s.begin(), s.end());

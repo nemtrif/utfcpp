@@ -979,6 +979,51 @@ assert (invalid == utf_invalid + 1);
 This function is typically used to make sure a UTF-16 string is valid before processing it with other functions.
 
 
+<!-- TOC --><a name="stdsize_t-find_invalid16const-stdu16string-s"></a>
+##### std::size_t find_invalid16(const std::u16string& s)
+
+Available in version 4.3 and later. Requires a C++ 11 compliant compiler.
+
+Detects an invalid sequence within a UTF-16 string.
+
+```cpp
+std::size_t find_invalid16(const std::u16string& s);
+```
+
+`s`: a UTF-16 encoded string.<br>
+Return value: the index of the first invalid word in the UTF-16 string. In case none were found, equals `std::u16string::npos`.
+
+Example of use:
+
+```cpp
+std::u16string utf_invalid = {0x65e5, 0xd800, 0x0041};
+auto invalid = find_invalid16(utf_invalid);
+assert (invalid == 1);
+```
+
+<!-- TOC --><a name="stdsize_t-find_invalid16stdu16string_view-s"></a>
+##### std::size_t find_invalid16(const std::u16string_view& s)
+
+Available in version 4.3 and later. Requires a C++ 17 compliant compiler.
+
+Detects an invalid sequence within a UTF-16 string.
+
+```cpp
+std::size_t find_invalid16(const std::u16string_view& s);
+```
+
+`s`: a UTF-16 encoded string view.<br>
+Return value: the index of the first invalid word in the UTF-16 string. In case none were found, equals `std::u16string_view::npos`.
+
+Example of use:
+
+```cpp
+std::u16string_view utf_invalid = u"\x65e5\xd800\x0041";
+auto invalid = find_invalid16(utf_invalid);
+assert (invalid == 1);
+```
+
+
 <!-- TOC --><a name="const-char-find_invalidconst-char-str"></a>
 ##### const char* find_invalid(const char* str)
 
@@ -1109,6 +1154,51 @@ assert (bvalid == false);
 ```
 
 `is_valid16` is a shorthand for `find_invalid16(start, end) == end;`. You may want to use it to make sure that a word sequence is a valid UTF-16 string without the need to know where it fails if it is not valid.
+
+
+<!-- TOC --><a name="bool-is_valid16const-stdu16string-s"></a>
+##### bool is_valid16(const std::u16string& s)
+
+Available in version 4.3 and later. Requires a C++ 11 compliant compiler.
+
+Checks whether a string object contains valid UTF-16 encoded text.
+
+```cpp
+bool is_valid16(const std::u16string& s);
+```
+
+`s`: a UTF-16 encoded string.<br>
+Return value: `true` if the string contains valid UTF-16 encoded text; `false` if not.
+
+Example of use:
+
+```cpp
+std::u16string utf_invalid = {0x65e5, 0xd800, 0x0041};
+bool bvalid = is_valid16(utf_invalid);
+assert (bvalid == false);
+```
+
+<!-- TOC --><a name="bool-is_valid16stdu16string_view-s"></a>
+##### bool is_valid16(const std::u16string_view& s)
+
+Available in version 4.3 and later. Requires a C++ 17 compliant compiler.
+
+Checks whether a string view contains valid UTF-16 encoded text.
+
+```cpp
+bool is_valid16(const std::u16string_view& s);
+```
+
+`s`: a UTF-16 encoded string view.<br>
+Return value: `true` if the string view contains valid UTF-16 encoded text; `false` if not.
+
+Example of use:
+
+```cpp
+std::u16string_view utf_invalid = u"\x65e5\xd800\x0041";
+bool bvalid = is_valid16(utf_invalid);
+assert (bvalid == false);
+```
 
 
 <!-- TOC --><a name="bool-is_validconst-char-str"></a>
