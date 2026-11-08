@@ -206,4 +206,34 @@ TEST(UnCheckedAPITests, test_replace_invalid)
     EXPECT_TRUE (std::equal(replace_invalid_result.begin(), replace_invalid_result.begin() + sizeof(fixed_invalid_sequence2), fixed_invalid_sequence2));
 }
 
+TEST(UnCheckedAPITests, test_replace_invalid16)
+{
+    const unsigned short invalid_sequence[] = {
+        0x65e5, 0xd800, 0xdf46, 0xdc00, 0xd800, 0x0041, 0xd800
+    };
+    vector<unsigned short> replace_invalid_result;
+    utf8::unchecked::replace_invalid16(
+        invalid_sequence, invalid_sequence + 7, back_inserter(replace_invalid_result));
+    const unsigned short fixed_invalid_sequence[] = {
+        0x65e5, 0xd800, 0xdf46, 0xfffd, 0xfffd, 0x0041, 0xfffd
+    };
+    EXPECT_EQ (7, replace_invalid_result.size());
+    EXPECT_TRUE (std::equal(replace_invalid_result.begin(), replace_invalid_result.end(), fixed_invalid_sequence));
+    EXPECT_TRUE (utf8::is_valid16(replace_invalid_result.begin(), replace_invalid_result.end()));
+
+    replace_invalid_result.clear();
+    utf8::unchecked::replace_invalid16(
+        invalid_sequence, invalid_sequence + 7, back_inserter(replace_invalid_result), 0x10346);
+    const unsigned short fixed_invalid_sequence_with_replacement[] = {
+        0x65e5, 0xd800, 0xdf46, 0xd800, 0xdf46, 0xd800, 0xdf46,
+        0x0041, 0xd800, 0xdf46
+    };
+    EXPECT_EQ (10, replace_invalid_result.size());
+    EXPECT_TRUE (std::equal(
+        replace_invalid_result.begin(),
+        replace_invalid_result.end(),
+        fixed_invalid_sequence_with_replacement));
+    EXPECT_TRUE (utf8::is_valid16(replace_invalid_result.begin(), replace_invalid_result.end()));
+}
+
 #endif

@@ -43,6 +43,7 @@
   - [utf8::unchecked::utf32to8](#utf8uncheckedutf32to8)
   - [utf8::unchecked::utf8to32](#utf8uncheckedutf8to32)
   - [utf8::unchecked::replace_invalid](#utf8uncheckedreplace_invalid)
+  - [utf8::unchecked::replace_invalid16](#utf8uncheckedreplace_invalid16)
 - [Types From utf8::unchecked Namespace](#types-from-utf8unchecked-namespace)
   - [utf8::iterator](#utf8iterator-1)
 
@@ -1884,6 +1885,43 @@ assert (std::equal(replace_invalid_result.begin(), replace_invalid_result.end(),
 `replace_invalid` does not perform in-place replacement of invalid sequences. Rather, it produces a copy of the original string with the invalid sequences replaced with a replacement marker. Therefore, `out` must not be in the `[start, end]` range.
 
 Unlike `utf8::replace_invalid`, this function does not verify validity of the replacement marker.
+
+<!-- TOC --><a name="utf8uncheckedreplace_invalid16"></a>
+#### utf8::unchecked::replace_invalid16
+
+Available in version 4.3 and later.
+
+Replaces all invalid UTF-16 sequences within a string with a replacement marker.
+
+```cpp
+template <typename word_iterator, typename output_iterator>
+output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out, utfchar32_t replacement);
+template <typename word_iterator, typename output_iterator>
+output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out);
+```
+
+`word_iterator`: an input iterator.<br>
+`output_iterator`: an output iterator.<br>
+`start`: an iterator pointing to the beginning of the UTF-16 string to look for invalid UTF-16 sequences.<br>
+`end`: an iterator pointing to pass-the-end of the UTF-16 string to look for invalid UTF-16 sequences.<br>
+`out`: An output iterator to the range where the result of replacement is stored.<br>
+`replacement`: A Unicode code point for the replacement marker. The version without this parameter assumes the value `0xfffd`<br>
+Return value: An iterator pointing to the place after the UTF-16 string with replaced invalid sequences.
+
+Example of use:
+
+```cpp
+unsigned short invalid_sequence[] = {0x65e5, 0xd800, 0x0041};
+vector<unsigned short> replace_invalid_result;
+unchecked::replace_invalid16(
+    invalid_sequence, invalid_sequence + 3, back_inserter(replace_invalid_result), '?');
+bool bvalid = utf8::is_valid16(replace_invalid_result.begin(), replace_invalid_result.end());
+assert (bvalid);
+```
+
+`replace_invalid16` does not perform in-place replacement of invalid sequences. Rather, it produces a copy of the original string with the invalid sequences replaced with a replacement marker. Therefore, `out` must not be in the `[start, end]` range.
+
+This function does not verify validity of the replacement marker.
 
 <!-- TOC --><a name="types-from-utf8unchecked-namespace"></a>
 ### Types From utf8::unchecked Namespace
