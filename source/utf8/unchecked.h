@@ -141,7 +141,7 @@ namespace utf8
         template <typename octet_iterator>
         utfchar32_t next(octet_iterator& it)
         {
-            utfchar32_t cp = utf8::internal::mask8(*it);
+            utfchar32_t cp = static_cast<utfchar32_t>(utf8::internal::mask8(*it));
             switch (utf8::internal::sequence_length(it)) {
                 case 1:
                     break;
@@ -177,7 +177,7 @@ namespace utf8
         template <typename word_iterator>
         utfchar32_t next16(word_iterator& it)
         {
-            utfchar32_t cp = utf8::internal::mask16(*it++);
+            utfchar32_t cp = static_cast<utfchar32_t>(utf8::internal::mask16(*it++));
             if (utf8::internal::is_lead_surrogate(cp))
                 return (cp << 10) + *it++ + utf8::internal::SURROGATE_OFFSET;
             return cp;
@@ -220,12 +220,12 @@ namespace utf8
         octet_iterator utf16to8(u16bit_iterator start, u16bit_iterator end, octet_iterator result)
         {
             while (start != end) {
-                utfchar32_t cp = utf8::internal::mask16(*start++);
+                utfchar32_t cp = static_cast<utfchar32_t>(utf8::internal::mask16(*start++));
                 // Take care of surrogate pairs first
                 if (utf8::internal::is_lead_surrogate(cp)) {
                     if (start == end)
                         return result;
-                    utfchar32_t trail_surrogate = utf8::internal::mask16(*start++);
+                    utfchar32_t trail_surrogate = static_cast<utfchar32_t>(utf8::internal::mask16(*start++));
                     cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
                 }
                 result = utf8::unchecked::append(cp, result);
