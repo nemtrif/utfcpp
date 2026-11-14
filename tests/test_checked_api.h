@@ -193,6 +193,22 @@ TEST(CheckedAPITests, test_prior)
     EXPECT_EQ (w, threechars);
 }
 
+TEST(CheckedAPITests, test_prior16)
+{
+    const utfchar16_t u[] = {0x65e5, 0xd800, 0xdf46};
+    const utfchar16_t* w = u + 3;
+    EXPECT_EQ (prior16(w, u), 0x10346);
+    EXPECT_EQ (w, u + 1);
+    EXPECT_EQ (prior16(w, u), 0x65e5);
+    EXPECT_EQ (w, u);
+    EXPECT_THROW(prior16(w, u), not_enough_room);
+
+    const utfchar16_t unpaired_trail[] = {0xdc00};
+    w = unpaired_trail + 1;
+    EXPECT_THROW(prior16(w, unpaired_trail), invalid_utf16);
+    EXPECT_EQ (w, unpaired_trail);
+}
+
 TEST(CheckedAPITests, test_advance)
 {
     const char* threechars = "\xf0\x90\x8d\x86\xe6\x97\xa5\xd1\x88";

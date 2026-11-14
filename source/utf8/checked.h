@@ -244,6 +244,20 @@ namespace utf8
         return utf8::peek_next(it, end);
     }
 
+    template <typename word_iterator>
+    utfchar32_t prior16(word_iterator& it, word_iterator start)
+    {
+        // can't do much if it == start
+        if (it == start)
+            throw not_enough_room();
+
+        word_iterator end = it;
+        while (utf8::internal::is_trail_surrogate(static_cast<utfchar32_t>(*(--it))))
+            if (it == start)
+                throw invalid_utf16(*it);
+        return utf8::peek_next16(it, end);
+    }
+
     template <typename octet_iterator, typename distance_type>
     void advance (octet_iterator& it, distance_type n, octet_iterator end)
     {

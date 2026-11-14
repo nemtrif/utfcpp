@@ -193,8 +193,14 @@ namespace utf8
         utfchar32_t prior(octet_iterator& it)
         {
             while (utf8::internal::is_trail(*(--it))) ;
-            octet_iterator temp = it;
-            return utf8::unchecked::next(temp);
+            return utf8::unchecked::peek_next(it);
+        }
+
+        template <typename word_iterator>
+        utfchar32_t prior16(word_iterator& it)
+        {
+            while (utf8::internal::is_trail_surrogate(static_cast<utfchar32_t>(*(--it)))) ;
+            return utf8::unchecked::peek_next16(it);
         }
 
         template <typename octet_iterator, typename distance_type>

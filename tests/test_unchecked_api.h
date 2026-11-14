@@ -132,6 +132,16 @@ TEST(UnCheckedAPITests, test_prior)
     EXPECT_EQ (w, threechars);
 }
 
+TEST(UnCheckedAPITests, test_prior16)
+{
+    const unsigned short u[] = {0x65e5, 0xd800, 0xdf46};
+    const unsigned short* w = u + 3;
+    EXPECT_EQ (utf8::unchecked::prior16(w), 0x10346);
+    EXPECT_EQ (w, u + 1);
+    EXPECT_EQ (utf8::unchecked::prior16(w), 0x65e5);
+    EXPECT_EQ (w, u);
+}
+
 TEST(UnCheckedAPITests, test_advance)
 {
     const char* threechars = "\xf0\x90\x8d\x86\xe6\x97\xa5\xd1\x88";

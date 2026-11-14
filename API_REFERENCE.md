@@ -10,6 +10,7 @@
   - [utf8::peek_next](#utf8peek_next)
   - [utf8::peek_next16](#utf8peek_next16)
   - [utf8::prior](#utf8prior)
+  - [utf8::prior16](#utf8prior16)
   - [utf8::advance](#utf8advance)
   - [utf8::distance](#utf8distance)
   - [utf8::utf16to8](#utf8utf16to8)
@@ -39,6 +40,7 @@
   - [utf8::unchecked::peek_next](#utf8uncheckedpeek_next)
   - [utf8::unchecked::peek_next16](#utf8uncheckedpeek_next16)
   - [utf8::unchecked::prior](#utf8uncheckedprior)
+  - [utf8::unchecked::prior16](#utf8uncheckedprior16)
   - [utf8::unchecked::advance](#utf8uncheckedadvance)
   - [utf8::unchecked::distance](#utf8uncheckeddistance)
   - [utf8::unchecked::utf16to8](#utf8uncheckedutf16to8)
@@ -321,6 +323,37 @@ This function has two purposes: one is two iterate backwards through a UTF-8 enc
 `it` will typically point to the beginning of a code point, and `start` will point to the beginning of the string to ensure we don't go backwards too far. `it` is decreased until it points to a lead UTF-8 octet, and then the UTF-8 sequence beginning with that octet is decoded to a 32 bit representation and returned.
 
 In case `start` is reached before a UTF-8 lead octet is hit, or if an invalid UTF-8 sequence is started by the lead octet, an `invalid_utf8` exception is thrown.
+
+In case `start` equals `it`, a `not_enough_room` exception is thrown.
+
+<!-- TOC --><a name="utf8prior16"></a>
+#### utf8::prior16
+
+Available in version 4.3 and later.
+
+Given a reference to an iterator pointing to a word in a UTF-16 sequence, it decreases the iterator until it hits the beginning of the previous UTF-16 encoded code point and returns the 32 bit representation of the code point.
+
+```cpp
+template <typename word_iterator>
+utfchar32_t prior16(word_iterator& it, word_iterator start);
+```
+
+`word_iterator`: a bidirectional iterator.<br>
+`it`: a reference pointing to a word within a UTF-16 encoded string. After the function returns, it is decremented to point to the beginning of the previous code point.<br>
+`start`: an iterator to the beginning of the sequence where the search for the beginning of a code point is performed. It is a safety measure to prevent passing the beginning of the string in the search for a UTF-16 lead surrogate.<br>
+Return value: the 32 bit representation of the previous code point.
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46};
+const unsigned short* w = u + 3;
+int cp = prior16(w, u);
+assert (cp == 0x10346);
+assert (w == u + 1);
+```
+
+In case a lone trail surrogate is encountered, or if an invalid UTF-16 sequence is started by a lead surrogate, an `invalid_utf16` exception is thrown.
 
 In case `start` equals `it`, a `not_enough_room` exception is thrown.
 
@@ -1867,6 +1900,33 @@ assert (w == twochars);
 ```
 
 This is a faster but less safe version of `utf8::prior`. It does not check for validity of the supplied UTF-8 sequence and offers no boundary checking.
+
+<!-- TOC --><a name="utf8uncheckedprior16"></a>
+#### utf8::unchecked::prior16
+
+Available in version 4.3 and later.
+
+Given a reference to an iterator pointing to a word in a UTF-16 sequence, it decreases the iterator until it hits the beginning of the previous UTF-16 encoded code point and returns the 32 bit representation of the code point.
+
+```cpp
+template <typename word_iterator>
+utfchar32_t prior16(word_iterator& it);
+```
+
+`it`: a reference pointing to a word within a UTF-16 encoded string. After the function returns, it is decremented to point to the beginning of the previous code point.<br>
+Return value: the 32 bit representation of the previous code point.
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46};
+const unsigned short* w = u + 3;
+int cp = unchecked::prior16(w);
+assert (cp == 0x10346);
+assert (w == u + 1);
+```
+
+This is a faster but less safe version of `utf8::prior16`. It does not check for validity of the supplied UTF-16 sequence and offers no boundary checking.
 
 <!-- TOC --><a name="utf8uncheckedadvance"></a>
 #### utf8::unchecked::advance
