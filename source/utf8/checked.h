@@ -273,6 +273,19 @@ namespace utf8
         }
     }
 
+    template <typename word_iterator, typename distance_type>
+    void advance16 (word_iterator& it, distance_type n, word_iterator end)
+    {
+        const distance_type zero(0);
+        if (n < zero) {
+            for (distance_type i = n; i < zero; ++i)
+                utf8::prior16(it, end);
+        } else {
+            for (distance_type i = zero; i < n; ++i)
+                utf8::next16(it, end);
+        }
+    }
+
     template <typename octet_iterator>
     typename std::iterator_traits<octet_iterator>::difference_type
     distance (octet_iterator first, octet_iterator last)
@@ -280,6 +293,16 @@ namespace utf8
         typename std::iterator_traits<octet_iterator>::difference_type dist;
         for (dist = 0; first < last; ++dist)
             utf8::next(first, last);
+        return dist;
+    }
+
+    template <typename word_iterator>
+    typename std::iterator_traits<word_iterator>::difference_type
+    distance16 (word_iterator first, word_iterator last)
+    {
+        typename std::iterator_traits<word_iterator>::difference_type dist;
+        for (dist = 0; first < last; ++dist)
+            utf8::next16(first, last);
         return dist;
     }
 

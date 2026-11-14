@@ -158,11 +158,33 @@ TEST(UnCheckedAPITests, test_advance)
     EXPECT_EQ(w, threechars);
 }
 
+TEST(UnCheckedAPITests, test_advance16)
+{
+    const unsigned short u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+    const unsigned short* w = u;
+    utf8::unchecked::advance16(w, 2);
+    EXPECT_EQ(w, u + 3);
+    utf8::unchecked::advance16(w, -2);
+    EXPECT_EQ(w, u);
+    utf8::unchecked::advance16(w, 3);
+    EXPECT_EQ(w, u + 4);
+    utf8::unchecked::advance16(w, -2);
+    EXPECT_EQ(w, u + 1);
+    utf8::unchecked::advance16(w, -1);
+    EXPECT_EQ(w, u);
+}
+
 TEST(UnCheckedAPITests, test_distance)
 {
     const char* twochars = "\xe6\x97\xa5\xd1\x88";
     size_t dist = static_cast<size_t>(utf8::unchecked::distance(twochars, twochars + 5));
     EXPECT_EQ (dist, 2);
+}
+
+TEST(UnCheckedAPITests, test_distance16)
+{
+    const unsigned short u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+    EXPECT_EQ (utf8::unchecked::distance16(u, u + 4), 3);
 }
 
 TEST(UnCheckedAPITests, test_utf32to8)

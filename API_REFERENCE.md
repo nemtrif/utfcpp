@@ -12,7 +12,9 @@
   - [utf8::prior](#utf8prior)
   - [utf8::prior16](#utf8prior16)
   - [utf8::advance](#utf8advance)
+  - [utf8::advance16](#utf8advance16)
   - [utf8::distance](#utf8distance)
+  - [utf8::distance16](#utf8distance16)
   - [utf8::utf16to8](#utf8utf16to8)
   - [utf8::utf16tou8](#utf8utf16tou8)
   - [utf8::utf8to16](#utf8utf8to16)
@@ -42,7 +44,9 @@
   - [utf8::unchecked::prior](#utf8uncheckedprior)
   - [utf8::unchecked::prior16](#utf8uncheckedprior16)
   - [utf8::unchecked::advance](#utf8uncheckedadvance)
+  - [utf8::unchecked::advance16](#utf8uncheckedadvance16)
   - [utf8::unchecked::distance](#utf8uncheckeddistance)
+  - [utf8::unchecked::distance16](#utf8uncheckeddistance16)
   - [utf8::unchecked::utf16to8](#utf8uncheckedutf16to8)
   - [utf8::unchecked::utf8to16](#utf8uncheckedutf8to16)
   - [utf8::unchecked::utf32to8](#utf8uncheckedutf32to8)
@@ -387,6 +391,37 @@ assert (w == twochars);
 
 In case of an invalid code point, a `utf8::invalid_code_point` exception is thrown.
 
+<!-- TOC --><a name="utf8advance16"></a>
+#### utf8::advance16
+
+Available in version 4.3 and later.
+
+Advances an iterator by the specified number of code points within a UTF-16 sequence.
+
+```cpp
+template <typename word_iterator, typename distance_type>
+void advance16(word_iterator& it, distance_type n, word_iterator end);
+```
+
+`word_iterator`: a bidirectional iterator.<br>
+`distance_type`: an integral type convertible to `word_iterator`'s difference type.<br>
+`it`: a reference to an iterator pointing to the beginning of a UTF-16 encoded code point. After the function returns, it is incremented to point to the nth following code point.<br>
+`n`: number of code points `it` should be advanced. A negative value means decrement.<br>
+`end`: limit of the UTF-16 sequence to be processed. If `n` is positive, it is the end of the sequence; if `n` is negative, it is the beginning of the sequence.<br>
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+const unsigned short* w = u;
+advance16(w, 2, u + 4);
+assert (w == u + 3);
+advance16(w, -2, u);
+assert (w == u);
+```
+
+In case an invalid UTF-16 sequence is encountered, an `utf8::invalid_utf16` exception is thrown. If the sequence boundary is reached before the requested number of code points is advanced, an `utf8::not_enough_room` exception is thrown.
+
 <!-- TOC --><a name="utf8distance"></a>
 #### utf8::distance
 
@@ -415,6 +450,34 @@ assert (dist == 2);
 This function is used to find the length (in code points) of a UTF-8 encoded string. The reason it is called _distance_, rather than, say, _length_ is mainly because developers are used that _length_ is an O(1) function. Computing the length of an UTF-8 string is a linear operation, and it looked better to model it after `std::distance` algorithm.
 
 In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown. If `last` does not point to the past-of-end of a UTF-8 sequence, a `utf8::not_enough_room` exception is thrown.
+
+<!-- TOC --><a name="utf8distance16"></a>
+#### utf8::distance16
+
+Available in version 4.3 and later.
+
+Given the iterators to two UTF-16 encoded code points in a sequence, returns the number of code points between them.
+
+```cpp
+template <typename word_iterator>
+typename std::iterator_traits<word_iterator>::difference_type
+distance16(word_iterator first, word_iterator last);
+```
+
+`word_iterator`: a random-access iterator.<br>
+`first`: an iterator to the beginning of a UTF-16 encoded code point.<br>
+`last`: an iterator to the post-end of the last UTF-16 encoded code point in the sequence.<br>
+Return value: the distance between the iterators, in code points.
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+std::size_t dist = distance16(u, u + 4);
+assert (dist == 3);
+```
+
+In case of an invalid UTF-16 sequence, an `utf8::invalid_utf16` exception is thrown. If `last` does not point to the past-of-end of a UTF-16 sequence, an `utf8::not_enough_room` exception is thrown.
 
 <!-- TOC --><a name="utf8utf16to8"></a>
 #### utf8::utf16to8
@@ -1954,6 +2017,35 @@ assert (w == twochars + 5);
 
 This is a faster but less safe version of `utf8::advance`. It does not check for validity of the supplied UTF-8 sequence and offers no boundary checking.
 
+<!-- TOC --><a name="utf8uncheckedadvance16"></a>
+#### utf8::unchecked::advance16
+
+Available in version 4.3 and later.
+
+Advances an iterator by the specified number of code points within a UTF-16 sequence.
+
+```cpp
+template <typename word_iterator, typename distance_type>
+void advance16(word_iterator& it, distance_type n);
+```
+
+`word_iterator`: a bidirectional iterator.<br>
+`it`: a reference to an iterator pointing to the beginning of a UTF-16 encoded code point. After the function returns, it is incremented to point to the nth following code point.<br>
+`n`: number of code points `it` should be advanced. A negative value means decrement.<br>
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+const unsigned short* w = u;
+unchecked::advance16(w, 2);
+assert (w == u + 3);
+unchecked::advance16(w, -2);
+assert (w == u);
+```
+
+This is a faster but less safe version of `utf8::advance16`. It does not check for validity of the supplied UTF-16 sequence and offers no boundary checking.
+
 <!-- TOC --><a name="utf8uncheckeddistance"></a>
 #### utf8::unchecked::distance
 
@@ -1979,6 +2071,34 @@ assert (dist == 2);
 ```
 
 This is a faster but less safe version of `utf8::distance`. It does not check for validity of the supplied UTF-8 sequence.
+
+<!-- TOC --><a name="utf8uncheckeddistance16"></a>
+#### utf8::unchecked::distance16
+
+Available in version 4.3 and later.
+
+Given the iterators to two UTF-16 encoded code points in a sequence, returns the number of code points between them.
+
+```cpp
+template <typename word_iterator>
+typename std::iterator_traits<word_iterator>::difference_type
+distance16(word_iterator first, word_iterator last);
+```
+
+`word_iterator`: a random-access iterator.<br>
+`first`: an iterator to the beginning of a UTF-16 encoded code point.<br>
+`last`: an iterator to the post-end of the last UTF-16 encoded code point in the sequence.<br>
+Return value: the distance between the iterators, in code points.
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+std::size_t dist = unchecked::distance16(u, u + 4);
+assert (dist == 3);
+```
+
+This is a faster but less safe version of `utf8::distance16`. It does not check for validity of the supplied UTF-16 sequence.
 
 <!-- TOC --><a name="utf8uncheckedutf16to8"></a>
 #### utf8::unchecked::utf16to8

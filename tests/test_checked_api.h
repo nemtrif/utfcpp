@@ -225,11 +225,34 @@ TEST(CheckedAPITests, test_advance)
     EXPECT_EQ(w, threechars);
 }
 
+TEST(CheckedAPITests, test_advance16)
+{
+    const utfchar16_t u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+    const utfchar16_t* w = u;
+    advance16(w, 2, u + 4);
+    EXPECT_EQ(w, u + 3);
+    advance16(w, -2, u);
+    EXPECT_EQ(w, u);
+    advance16(w, 3, u + 4);
+    EXPECT_EQ(w, u + 4);
+    advance16(w, -2, u);
+    EXPECT_EQ(w, u + 1);
+    advance16(w, -1, u);
+    EXPECT_EQ(w, u);
+    EXPECT_THROW(advance16(w, -1, u), not_enough_room);
+}
+
 TEST(CheckedAPITests, test_distance)
 {
     const char* twochars = "\xe6\x97\xa5\xd1\x88";
     size_t dist = static_cast<size_t>(utf8::distance(twochars, twochars + 5));
     EXPECT_EQ (dist, 2);
+}
+
+TEST(CheckedAPITests, test_distance16)
+{
+    const utfchar16_t u[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+    EXPECT_EQ (distance16(u, u + 4), 3);
 }
 
 TEST(CheckedAPITests, test_utf32to8)
