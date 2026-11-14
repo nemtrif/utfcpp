@@ -48,6 +48,20 @@ namespace utf8
         return is_valid16(s.begin(), s.end());
     }
 
+    inline std::u16string replace_invalid16(const std::u16string& s, utfchar32_t replacement)
+    {
+        std::u16string result;
+        replace_invalid16(s.begin(), s.end(), std::back_inserter(result), replacement);
+        return result;
+    }
+
+    inline std::u16string replace_invalid16(const std::u16string& s)
+    {
+        std::u16string result;
+        replace_invalid16(s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
     inline std::string utf16to8(const std::u16string& s)
     {
         std::string result;

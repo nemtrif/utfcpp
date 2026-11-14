@@ -96,6 +96,20 @@ namespace utf8
         return is_valid16(s.begin(), s.end());
     }
 
+    inline std::u16string replace_invalid16(std::u16string_view s, char32_t replacement)
+    {
+        std::u16string result;
+        replace_invalid16(s.begin(), s.end(), std::back_inserter(result), replacement);
+        return result;
+    }
+
+    inline std::u16string replace_invalid16(std::u16string_view s)
+    {
+        std::u16string result;
+        replace_invalid16(s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
     inline bool starts_with_bom(std::string_view s)
     {
         return starts_with_bom(s.begin(), s.end());

@@ -82,6 +82,22 @@ TEST(CPP17APITests, test_replace_invalid)
     EXPECT_EQ(fixed_invalid_sequence, replace_invalid_result);
 }
 
+TEST(CPP17APITests, test_replace_invalid16)
+{
+    u16string invalid_sequence = {0x65e5, 0xd800, 0x0041};
+    u16string_view invalid_sequence_view(invalid_sequence);
+    u16string replace_invalid_result = replace_invalid16(invalid_sequence_view, '?');
+    EXPECT_EQ (replace_invalid_result.size(), 3);
+    EXPECT_EQ (replace_invalid_result[1], char16_t('?'));
+    EXPECT_TRUE (is_valid16(replace_invalid_result));
+
+    replace_invalid_result = replace_invalid16(invalid_sequence_view);
+    EXPECT_EQ (replace_invalid_result.size(), 3);
+    EXPECT_EQ (replace_invalid_result[1], char16_t(0xfffd));
+    EXPECT_TRUE (is_valid16(replace_invalid_result));
+    EXPECT_THROW(replace_invalid16(invalid_sequence_view, 0xd800), invalid_code_point);
+}
+
 TEST(CPP17APITests, test_starts_with_bom)
 {
     string byte_order_mark = {char(0xef), char(0xbb), char(0xbf)};

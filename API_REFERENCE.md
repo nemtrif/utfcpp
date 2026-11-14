@@ -1531,6 +1531,58 @@ assert (bvalid);
 
 If a replacement is required and the supplied replacement marker is not a valid Unicode code point, `utf8::invalid_code_point` is thrown.
 
+<!-- TOC --><a name="stdu16string-replace_invalid16const-stdu16string-s-utfchar32_t-replacement"></a>
+##### std::u16string replace_invalid16(const std::u16string& s, utfchar32_t replacement)
+
+Available in version 4.3 and later. Requires a C++ 11 compliant compiler.
+
+Replaces all invalid UTF-16 sequences within a string with a replacement marker.
+
+```cpp
+std::u16string replace_invalid16(const std::u16string& s, utfchar32_t replacement);
+std::u16string replace_invalid16(const std::u16string& s);
+```
+
+`s`: a UTF-16 encoded string.<br>
+`replacement`: A Unicode code point for the replacement marker. The version without this parameter assumes the value `0xfffd`<br>
+Return value: A UTF-16 encoded string with replaced invalid sequences.
+
+Example of use:
+
+```cpp
+std::u16string invalid_sequence = {0x65e5, 0xd800, 0x0041};
+std::u16string replace_invalid_result = replace_invalid16(invalid_sequence, '?');
+assert (is_valid16(replace_invalid_result));
+```
+
+If a replacement is required and the supplied replacement marker is not a valid Unicode code point, `utf8::invalid_code_point` is thrown.
+
+<!-- TOC --><a name="stdu16string-replace_invalid16stdu16string_view-s-char32_t-replacement"></a>
+##### std::u16string replace_invalid16(std::u16string_view s, char32_t replacement)
+
+Available in version 4.3 and later. Requires a C++ 17 compliant compiler.
+
+Replaces all invalid UTF-16 sequences within a string with a replacement marker.
+
+```cpp
+std::u16string replace_invalid16(std::u16string_view s, char32_t replacement);
+std::u16string replace_invalid16(std::u16string_view s);
+```
+
+`s`: a UTF-16 encoded string view.<br>
+`replacement`: A Unicode code point for the replacement marker. The version without this parameter assumes the value `0xfffd`<br>
+Return value: A UTF-16 encoded string with replaced invalid sequences.
+
+Example of use:
+
+```cpp
+std::u16string_view invalid_sequence = u"\x65e5\xd800\x0041";
+std::u16string replace_invalid_result = replace_invalid16(invalid_sequence, '?');
+assert (is_valid16(replace_invalid_result));
+```
+
+If a replacement is required and the supplied replacement marker is not a valid Unicode code point, `utf8::invalid_code_point` is thrown.
+
 <!-- TOC --><a name="utf8starts_with_bom"></a>
 #### utf8::starts_with_bom
 <!-- TOC --><a name="bool-starts_with_bom-octet_iterator-it-octet_iterator-end"></a>
