@@ -8,6 +8,7 @@
   - [utf8::next](#utf8next)
   - [utf8::next16](#utf8next16)
   - [utf8::peek_next](#utf8peek_next)
+  - [utf8::peek_next16](#utf8peek_next16)
   - [utf8::prior](#utf8prior)
   - [utf8::advance](#utf8advance)
   - [utf8::distance](#utf8distance)
@@ -36,6 +37,7 @@
   - [utf8::unchecked::next](#utf8uncheckednext)
   - [utf8::next16](#utf8next16-1)
   - [utf8::unchecked::peek_next](#utf8uncheckedpeek_next)
+  - [utf8::unchecked::peek_next16](#utf8uncheckedpeek_next16)
   - [utf8::unchecked::prior](#utf8uncheckedprior)
   - [utf8::unchecked::advance](#utf8uncheckedadvance)
   - [utf8::unchecked::distance](#utf8uncheckeddistance)
@@ -227,6 +229,35 @@ This function is typically used to iterate through a UTF-16 encoded string.
 
 In case of an invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thrown.
 
+
+<!-- TOC --><a name="utf8peek_next16"></a>
+#### utf8::peek_next16
+
+Available in version 4.3 and later.
+
+Given the iterator to the beginning of a UTF-16 sequence, it returns the code point for the following sequence without changing the value of the iterator.
+
+```cpp
+template <typename word_iterator>
+utfchar32_t peek_next16(word_iterator it, word_iterator end);
+```
+
+`word_iterator`: an input iterator.<br>
+`it`: an iterator pointing to the beginning of a UTF-16 encoded code point.<br>
+`end`: end of the UTF-16 sequence to be processed. If `it` gets equal to `end` during the extraction of a code point, an `utf8::not_enough_room` exception is thrown.<br>
+Return value: the 32 bit representation of the processed UTF-16 code point.
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46};
+const unsigned short* w = u;
+int cp = peek_next16(w, u + 3);
+assert (cp == 0x65e5);
+assert (w == u);
+```
+
+In case of an invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thrown.
 
 <!-- TOC --><a name="utf8peek_next"></a>
 #### utf8::peek_next
@@ -1782,6 +1813,33 @@ assert (w == twochars);
 ```
 
 This is a faster but less safe version of `utf8::peek_next`. It does not check for validity of the supplied UTF-8 sequence.
+
+<!-- TOC --><a name="utf8uncheckedpeek_next16"></a>
+#### utf8::unchecked::peek_next16
+
+Available in version 4.3 and later.
+
+Given the iterator to the beginning of a UTF-16 sequence, it returns the code point without changing the value of the iterator.
+
+```cpp
+template <typename word_iterator>
+utfchar32_t peek_next16(word_iterator it);
+```
+
+`it`: an iterator pointing to the beginning of a UTF-16 encoded code point.<br>
+Return value: the 32 bit representation of the processed UTF-16 code point.
+
+Example of use:
+
+```cpp
+const unsigned short u[] = {0x65e5, 0xd800, 0xdf46};
+const unsigned short* w = u;
+int cp = unchecked::peek_next16(w);
+assert (cp == 0x65e5);
+assert (w == u);
+```
+
+This is a faster but less safe version of `utf8::peek_next16`. It does not check for validity of the supplied UTF-16 sequence.
 
 <!-- TOC --><a name="utf8uncheckedprior"></a>
 #### utf8::unchecked::prior

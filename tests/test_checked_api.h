@@ -158,6 +158,20 @@ TEST(CheckedAPITests, test_peek_next)
     EXPECT_EQ (cp, 0x65e5);
 }
 
+TEST(CheckedAPITests, test_peek_next16)
+{
+    const utfchar16_t u[] = {0x65e5, 0xd800, 0xdf46};
+    const utfchar16_t* w = u;
+    EXPECT_EQ (peek_next16(w, u + 3), 0x65e5);
+    EXPECT_EQ (w, u);
+    w = u + 1;
+    EXPECT_EQ (peek_next16(w, u + 3), 0x10346);
+    EXPECT_EQ (w, u + 1);
+
+    const utfchar16_t unpaired_lead[] = {0xd800};
+    EXPECT_THROW(peek_next16(unpaired_lead, unpaired_lead + 1), not_enough_room);
+}
+
 TEST(CheckedAPITests, test_prior)
 {
     const char* twochars = "\xe6\x97\xa5\xd1\x88";

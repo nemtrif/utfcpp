@@ -223,6 +223,12 @@ namespace utf8
         return utf8::next(it, end);
     }
 
+    template <typename word_iterator>
+    utfchar32_t peek_next16(word_iterator it, word_iterator end)
+    {
+        return utf8::next16(it, end);
+    }
+
     template <typename octet_iterator>
     utfchar32_t prior(octet_iterator& it, octet_iterator start)
     {

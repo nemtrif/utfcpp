@@ -183,6 +183,12 @@ namespace utf8
             return cp;
         }
 
+        template <typename word_iterator>
+        utfchar32_t peek_next16(word_iterator it)
+        {
+            return utf8::unchecked::next16(it);
+        }
+
         template <typename octet_iterator>
         utfchar32_t prior(octet_iterator& it)
         {

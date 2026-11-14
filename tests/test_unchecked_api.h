@@ -100,6 +100,17 @@ TEST(UnCheckedAPITests, test_peek_next)
     EXPECT_EQ (cp, 0x65e5);
 }
 
+TEST(UnCheckedAPITests, test_peek_next16)
+{
+    const unsigned short u[] = {0x65e5, 0xd800, 0xdf46};
+    const unsigned short* w = u;
+    EXPECT_EQ (utf8::unchecked::peek_next16(w), 0x65e5);
+    EXPECT_EQ (w, u);
+    w = u + 1;
+    EXPECT_EQ (utf8::unchecked::peek_next16(w), 0x10346);
+    EXPECT_EQ (w, u + 1);
+}
+
 TEST(UnCheckedAPITests, test_prior)
 {
     const char* twochars = "\xe6\x97\xa5\xd1\x88";
