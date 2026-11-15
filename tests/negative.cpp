@@ -1,6 +1,7 @@
 #include "ftest.h"
 #include "utf8.h"
 #include <string>
+#include <vector>
 
 /* Data from:
 UTF-8 decoder capability and stress test
@@ -483,4 +484,45 @@ TEST(NegativeTests, Section5_2_IllegalSurrogatePairs)
         EXPECT_EQ(out, "??");
         EXPECT_TRUE(is_valid(out.begin(), out.end()));
     }
+}
+
+/*
+ * UTF-16 negative tests
+ * =====================
+ *
+ * The preceding tests are based on the Markus Kuhn UTF-8 decoder capability
+ * and stress test. The tests below use UTF-16 words directly so they do not
+ * depend on byte order.
+ */
+
+// 1.1 Single UTF-16 surrogates
+TEST(NegativeTests, Utf16Section1_1_IllegalSingleSurrogates)
+{
+    for (utfchar32_t word = 0xd800; word <= 0xdfff; ++word) {
+        const utfchar16_t in[] = {static_cast<utfchar16_t>(word)};
+        EXPECT_FALSE(is_valid16(in, in + 1));
+        EXPECT_EQ(find_invalid16(in, in + 1), in);
+
+        std::vector<utfchar16_t> out;
+        replace_invalid16(in, in + 1, std::back_inserter(out));
+        EXPECT_EQ(out.size(), 1);
+        EXPECT_EQ(out[0], static_cast<utfchar16_t>(0xfffd));
+        EXPECT_TRUE(is_valid16(out.begin(), out.end()));
+    }
+}
+
+// 1.2 Invalid UTF-16 surrogate pair
+TEST(NegativeTests, Utf16Section1_2_InvalidSurrogatePair)
+{
+    const utfchar16_t in[] = {0xd800, 0x0041, 0xdc00, 0xd800, 0xdc00};
+    EXPECT_FALSE(is_valid16(in, in + 5));
+    EXPECT_EQ(find_invalid16(in, in + 5), in);
+
+    std::vector<utfchar16_t> out;
+    replace_invalid16(in, in + 5, std::back_inserter(out));
+    const utfchar16_t expected[] = {0xfffd, 0x0041, 0xfffd, 0xd800, 0xdc00};
+    EXPECT_EQ(out.size(), 5);
+    for (std::size_t i = 0; i < out.size(); ++i)
+        EXPECT_EQ(out[i], expected[i]);
+    EXPECT_TRUE(is_valid16(out.begin(), out.end()));
 }
