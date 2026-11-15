@@ -301,7 +301,7 @@ namespace utf8
             return result;
         }
 
-        // The iterator class
+        // The iterator classes
         template <typename octet_iterator>
           class iterator {
             octet_iterator it;
@@ -352,6 +352,55 @@ namespace utf8
             }
           }; // class iterator
 
+        template <typename word_iterator>
+          class iterator16 {
+            word_iterator it;
+            public:
+            typedef utfchar32_t value_type;
+            typedef utfchar32_t* pointer;
+            typedef utfchar32_t& reference;
+            typedef std::ptrdiff_t difference_type;
+            typedef std::bidirectional_iterator_tag iterator_category;
+            iterator16 () {}
+            explicit iterator16 (const word_iterator& word_it): it(word_it) {}
+            // the default "big three" are OK
+            word_iterator base () const { return it; }
+            utfchar32_t operator * () const
+            {
+                word_iterator temp = it;
+                return utf8::unchecked::next16(temp);
+            }
+            bool operator == (const iterator16& rhs) const
+            {
+                return (it == rhs.it);
+            }
+            bool operator != (const iterator16& rhs) const
+            {
+                return !(operator == (rhs));
+            }
+            iterator16& operator ++ ()
+            {
+                utf8::unchecked::next16(it);
+                return *this;
+            }
+            iterator16 operator ++ (int)
+            {
+                iterator16 temp = *this;
+                utf8::unchecked::next16(it);
+                return temp;
+            }
+            iterator16& operator -- ()
+            {
+                utf8::unchecked::prior16(it);
+                return *this;
+            }
+            iterator16 operator -- (int)
+            {
+                iterator16 temp = *this;
+                utf8::unchecked::prior16(it);
+                return temp;
+            }
+          }; // class iterator16
     } // namespace utf8::unchecked
 } // namespace utf8
 

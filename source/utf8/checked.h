@@ -366,7 +366,7 @@ namespace utf8
         return result;
     }
 
-    // The iterator class
+    // The iterator classes
     template <typename octet_iterator>
     class iterator {
       octet_iterator it;
@@ -428,6 +428,66 @@ namespace utf8
       }
     }; // class iterator
 
+    template <typename word_iterator>
+    class iterator16 {
+      word_iterator it;
+      word_iterator range_start;
+      word_iterator range_end;
+      public:
+      typedef utfchar32_t value_type;
+      typedef utfchar32_t* pointer;
+      typedef utfchar32_t& reference;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::bidirectional_iterator_tag iterator_category;
+      iterator16 () {}
+      explicit iterator16 (const word_iterator& word_it,
+                         const word_iterator& rangestart,
+                         const word_iterator& rangeend) :
+               it(word_it), range_start(rangestart), range_end(rangeend)
+      {
+          if (it < range_start || it > range_end)
+              throw std::out_of_range("Invalid utf-16 iterator position");
+      }
+      // the default "big three" are OK
+      word_iterator base () const { return it; }
+      utfchar32_t operator * () const
+      {
+          word_iterator temp = it;
+          return utf8::next16(temp, range_end);
+      }
+      bool operator == (const iterator16& rhs) const
+      {
+          if (range_start != rhs.range_start || range_end != rhs.range_end)
+              throw std::logic_error("Comparing utf-16 iterators defined with different ranges");
+          return (it == rhs.it);
+      }
+      bool operator != (const iterator16& rhs) const
+      {
+          return !(operator == (rhs));
+      }
+      iterator16& operator ++ ()
+      {
+          utf8::next16(it, range_end);
+          return *this;
+      }
+      iterator16 operator ++ (int)
+      {
+          iterator16 temp = *this;
+          utf8::next16(it, range_end);
+          return temp;
+      }
+      iterator16& operator -- ()
+      {
+          utf8::prior16(it, range_start);
+          return *this;
+      }
+      iterator16 operator -- (int)
+      {
+          iterator16 temp = *this;
+          utf8::prior16(it, range_start);
+          return temp;
+      }
+    }; // class iterator16
 } // namespace utf8
 
 #if UTF_CPP_CPLUSPLUS >= 202002L // C++ 20 or later

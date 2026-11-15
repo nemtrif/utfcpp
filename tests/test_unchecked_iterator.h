@@ -33,4 +33,32 @@ TEST(UnCheckedIteratrTests, test_decrement)
 
 }
 
+TEST(UnCheckedIteratrTests, test_increment16)
+{
+    const unsigned short codepoints[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+    utf8::unchecked::iterator16<const unsigned short*> it(codepoints);
+    utf8::unchecked::iterator16<const unsigned short*> it2 = it;
+    EXPECT_EQ (it2, it);
+    EXPECT_EQ (*it, 0x65e5);
+    EXPECT_EQ (*(++it), 0x10346);
+    EXPECT_EQ ((*it++), 0x10346);
+    EXPECT_EQ (*it, 0x0448);
+    EXPECT_NE (it, it2);
+    utf8::unchecked::iterator16<const unsigned short*> endit(codepoints + 4);
+    EXPECT_EQ (++it, endit);
+}
+
+TEST(UnCheckedIteratrTests, test_decrement16)
+{
+    const unsigned short codepoints[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+    utf8::unchecked::iterator16<const unsigned short*> it(codepoints + 4);
+    EXPECT_EQ (*(--it), 0x0448);
+    EXPECT_EQ ((*it--), 0x0448);
+    EXPECT_EQ (*it, 0x10346);
+    EXPECT_EQ (
+        --it,
+        utf8::unchecked::iterator16<const unsigned short*>(codepoints));
+    EXPECT_EQ (*it, 0x65e5);
+}
+
 #endif

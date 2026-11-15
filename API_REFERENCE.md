@@ -34,6 +34,7 @@
   - [utf8::invalid_utf16](#utf8invalid_utf16)
   - [utf8::not_enough_room](#utf8not_enough_room)
   - [utf8::iterator](#utf8iterator)
+  - [utf8::iterator16](#utf8iterator16)
 - [Functions From utf8::unchecked Namespace](#functions-from-utf8unchecked-namespace)
   - [utf8::unchecked::append](#utf8uncheckedappend)
   - [utf8::unchecked::append16](#utf8uncheckedappend16)
@@ -55,6 +56,7 @@
   - [utf8::unchecked::replace_invalid16](#utf8uncheckedreplace_invalid16)
 - [Types From utf8::unchecked Namespace](#types-from-utf8unchecked-namespace)
   - [utf8::iterator](#utf8iterator-1)
+  - [utf8::iterator16](#utf8iterator16-1)
 
 <!-- TOC --><a name="functions-from-utf8-namespace"></a>
 ### Functions From utf8 Namespace
@@ -1819,6 +1821,55 @@ std::string s = "example";
 utf8::iterator i (s.begin(), s.begin(), s.end());
 ```
 
+<!-- TOC --><a name="utf8iterator16"></a>
+#### utf8::iterator16
+
+Available in version 4.3 and later.
+
+Adapts the underlying UTF-16 word iterator to iterate over code points, rather than raw words.
+
+```cpp
+template <typename word_iterator>
+class iterator16;
+```
+
+<!-- TOC --><a name="member-functions-iterator16"></a>
+##### Member functions
+
+`iterator16();` the default constructor; the underlying word iterator is constructed with its default constructor.
+
+`explicit iterator16(const word_iterator& word_it, const word_iterator& range_start, const word_iterator& range_end);` a constructor that initializes the underlying word iterator with `word_it` and sets the range in which the iterator is considered valid.
+
+`word_iterator base() const;` returns the underlying word iterator.
+
+`utfchar32_t operator * () const;` decodes the UTF-16 sequence the underlying word iterator is pointing to and returns the code point.
+
+`bool operator == (const iterator16& rhs) const;` returns `true` if the two underlying iterators are equal.
+
+`bool operator != (const iterator16& rhs) const;` returns `true` if the two underlying iterators are not equal.
+
+`iterator16& operator ++ ();` the prefix increment - moves the iterator to the next UTF-16 encoded code point.
+
+`iterator16 operator ++ (int);` the postfix increment - moves the iterator to the next UTF-16 encoded code point and returns the current one.
+
+`iterator16& operator -- ();` the prefix decrement - moves the iterator to the previous UTF-16 encoded code point.
+
+`iterator16 operator -- (int);` the postfix decrement - moves the iterator to the previous UTF-16 encoded code point and returns the current one.
+
+Example of use:
+
+```cpp
+const unsigned short codepoints[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+utf8::iterator16<const unsigned short*> it(codepoints, codepoints, codepoints + 4);
+assert (*it == 0x65e5);
+assert (*(++it) == 0x10346);
+assert (*(++it) == 0x0448);
+```
+
+The `utf8::iterator16` adapter enables easy iteration and use of STL algorithms with UTF-16 encoded strings. Increment and decrement operators are implemented in terms of `utf8::next16()` and `utf8::prior16()`.
+
+This is a checked iterator. It operates on the range specified in the constructor; attempts to go out of that range result in an exception. Comparison requires both iterator objects to be constructed against the same range; otherwise an exception is thrown.
+
 <!-- TOC --><a name="functions-from-utf8unchecked-namespace"></a>
 ### Functions From utf8::unchecked Namespace
 
@@ -2401,3 +2452,50 @@ assert (*un_it == 0x10346);
 ```
 
 This is an unchecked version of `utf8::iterator`. It is faster in many cases, but offers no validity or range checks.
+
+<!-- TOC --><a name="utf8iterator16-1"></a>
+#### utf8::unchecked::iterator16
+
+Available in version 4.3 and later.
+
+Adapts the underlying UTF-16 word iterator to iterate over code points, rather than raw words.
+
+```cpp
+template <typename word_iterator>
+class iterator16;
+```
+
+<!-- TOC --><a name="member-functions-iterator16-1"></a>
+##### Member functions
+
+`iterator16();` the default constructor; the underlying word iterator is constructed with its default constructor.
+
+`explicit iterator16(const word_iterator& word_it);` a constructor that initializes the underlying word iterator with `word_it`.
+
+`word_iterator base() const;` returns the underlying word iterator.
+
+`utfchar32_t operator * () const;` decodes the UTF-16 sequence the underlying word iterator is pointing to and returns the code point.
+
+`bool operator == (const iterator16& rhs) const;` returns `true` if the two underlying iterators are equal.
+
+`bool operator != (const iterator16& rhs) const;` returns `true` if the two underlying iterators are not equal.
+
+`iterator16& operator ++ ();` the prefix increment - moves the iterator to the next UTF-16 encoded code point.
+
+`iterator16 operator ++ (int);` the postfix increment - moves the iterator to the next UTF-16 encoded code point and returns the current one.
+
+`iterator16& operator -- ();` the prefix decrement - moves the iterator to the previous UTF-16 encoded code point.
+
+`iterator16 operator -- (int);` the postfix decrement - moves the iterator to the previous UTF-16 encoded code point and returns the current one.
+
+Example of use:
+
+```cpp
+const unsigned short codepoints[] = {0x65e5, 0xd800, 0xdf46, 0x0448};
+utf8::unchecked::iterator16<const unsigned short*> it(codepoints);
+assert (*it == 0x65e5);
+assert (*(++it) == 0x10346);
+assert (*(++it) == 0x0448);
+```
+
+This is an unchecked version of `utf8::iterator16`. It is faster in many cases, but offers no validity or range checks.
