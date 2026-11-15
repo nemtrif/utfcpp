@@ -8,7 +8,7 @@
 
 C++ developers still miss an easy and portable way of handling Unicode encoded strings. The original C++ standard (known as C++98 or C++03) is Unicode agnostic. Some progress has been made in the later editions of the standard, but it is still hard to work with Unicode using only the standard facilities.
 
-I came up with a small, C++98 compatible generic library in order to handle UTF-8 encoded strings. For anybody used to work with STL algorithms and iterators, it should be easy and natural to use. The code is freely available for any purpose - check out the [license](./LICENSE). The library has been used a lot since the first release in 2006 both in commercial and open-source projects and proved to be stable and useful. If you are interested in the history of the project, check out my blog post [Twenty Years of my Open Source Project](https://nemanjatrifunovic.substack.com/p/twenty-years-of-my-open-source-project)
+I came up with a small, C++98 compatible generic library in order to handle UTF-8 and (since version 5.0) UTF-16 encoded strings. For anybody used to work with STL algorithms and iterators, it should be easy and natural to use. The code is freely available for any purpose - check out the [license](./LICENSE). The library has been used a lot since the first release in 2006 both in commercial and open-source projects and proved to be stable and useful. If you are interested in the history of the project, check out my blog post [Twenty Years of my Open Source Project](https://nemanjatrifunovic.substack.com/p/twenty-years-of-my-open-source-project)
 
 ## Table of Contents
 
