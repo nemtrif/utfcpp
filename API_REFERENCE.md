@@ -241,7 +241,7 @@ In case of an invalid UTF-16 sequence, a `utf8::invalid_utf16` exception is thro
 <!-- TOC --><a name="utf8peek_next16"></a>
 #### utf8::peek_next16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Given the iterator to the beginning of a UTF-16 sequence, it returns the code point for the following sequence without changing the value of the iterator.
 
@@ -335,7 +335,7 @@ In case `start` equals `it`, a `not_enough_room` exception is thrown.
 <!-- TOC --><a name="utf8prior16"></a>
 #### utf8::prior16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Given a reference to an iterator pointing to a word in a UTF-16 sequence, it decreases the iterator until it hits the beginning of the previous UTF-16 encoded code point and returns the 32 bit representation of the code point.
 
@@ -396,7 +396,7 @@ In case of an invalid code point, a `utf8::invalid_code_point` exception is thro
 <!-- TOC --><a name="utf8advance16"></a>
 #### utf8::advance16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Advances an iterator by the specified number of code points within a UTF-16 sequence.
 
@@ -456,7 +456,7 @@ In case of an invalid UTF-8 sequence, a `utf8::invalid_utf8` exception is thrown
 <!-- TOC --><a name="utf8distance16"></a>
 #### utf8::distance16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Given the iterators to two UTF-16 encoded code points in a sequence, returns the number of code points between them.
 
@@ -1083,7 +1083,7 @@ This function is typically used to make sure a UTF-8 string is valid before proc
 <!-- TOC --><a name="word_iterator-find_invalid16word_iterator-start-word_iterator-end"></a>
 ##### word_iterator find_invalid16(word_iterator start, word_iterator end)
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Detects an invalid sequence within a UTF-16 string.
 
@@ -1111,7 +1111,7 @@ This function is typically used to make sure a UTF-16 string is valid before pro
 <!-- TOC --><a name="stdsize_t-find_invalid16const-stdu16string-s"></a>
 ##### std::size_t find_invalid16(const std::u16string& s)
 
-Available in version 4.3 and later. Requires a C++ 11 compliant compiler.
+Available in version 5.0 and later. Requires a C++ 11 compliant compiler.
 
 Detects an invalid sequence within a UTF-16 string.
 
@@ -1133,7 +1133,7 @@ assert (invalid == 1);
 <!-- TOC --><a name="stdsize_t-find_invalid16stdu16string_view-s"></a>
 ##### std::size_t find_invalid16(const std::u16string_view& s)
 
-Available in version 4.3 and later. Requires a C++ 17 compliant compiler.
+Available in version 5.0 and later. Requires a C++ 17 compliant compiler.
 
 Detects an invalid sequence within a UTF-16 string.
 
@@ -1260,7 +1260,7 @@ assert (bvalid == false);
 <!-- TOC --><a name="bool-is_valid16word_iterator-start-word_iterator-end"></a>
 ##### bool is_valid16(word_iterator start, word_iterator end)
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Checks whether a sequence of words is a valid UTF-16 string.
 
@@ -1288,7 +1288,7 @@ assert (bvalid == false);
 <!-- TOC --><a name="bool-is_valid16const-stdu16string-s"></a>
 ##### bool is_valid16(const std::u16string& s)
 
-Available in version 4.3 and later. Requires a C++ 11 compliant compiler.
+Available in version 5.0 and later. Requires a C++ 11 compliant compiler.
 
 Checks whether a string object contains valid UTF-16 encoded text.
 
@@ -1310,7 +1310,7 @@ assert (bvalid == false);
 <!-- TOC --><a name="bool-is_valid16stdu16string_view-s"></a>
 ##### bool is_valid16(const std::u16string_view& s)
 
-Available in version 4.3 and later. Requires a C++ 17 compliant compiler.
+Available in version 5.0 and later. Requires a C++ 17 compliant compiler.
 
 Checks whether a string view contains valid UTF-16 encoded text.
 
@@ -1499,7 +1499,7 @@ assert(fixed_invalid_sequence, replace_invalid_result);
 <!-- TOC --><a name="utf8replace_invalid16"></a>
 #### utf8::replace_invalid16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Replaces all invalid UTF-16 sequences within a string with a replacement marker.
 
@@ -1536,7 +1536,7 @@ If a replacement is required and the supplied replacement marker is not a valid 
 <!-- TOC --><a name="stdu16string-replace_invalid16const-stdu16string-s-utfchar32_t-replacement"></a>
 ##### std::u16string replace_invalid16(const std::u16string& s, utfchar32_t replacement)
 
-Available in version 4.3 and later. Requires a C++ 11 compliant compiler.
+Available in version 5.0 and later. Requires a C++ 11 compliant compiler.
 
 Replaces all invalid UTF-16 sequences within a string with a replacement marker.
 
@@ -1562,7 +1562,7 @@ If a replacement is required and the supplied replacement marker is not a valid 
 <!-- TOC --><a name="stdu16string-replace_invalid16stdu16string_view-s-char32_t-replacement"></a>
 ##### std::u16string replace_invalid16(std::u16string_view s, char32_t replacement)
 
-Available in version 4.3 and later. Requires a C++ 17 compliant compiler.
+Available in version 5.0 and later. Requires a C++ 17 compliant compiler.
 
 Replaces all invalid UTF-16 sequences within a string with a replacement marker.
 
@@ -1824,7 +1824,7 @@ utf8::iterator i (s.begin(), s.begin(), s.end());
 <!-- TOC --><a name="utf8iterator16"></a>
 #### utf8::iterator16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Adapts the underlying UTF-16 word iterator to iterate over code points, rather than raw words.
 
@@ -2016,7 +2016,7 @@ This is a faster but less safe version of `utf8::peek_next`. It does not check f
 <!-- TOC --><a name="utf8uncheckedpeek_next16"></a>
 #### utf8::unchecked::peek_next16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Given the iterator to the beginning of a UTF-16 sequence, it returns the code point without changing the value of the iterator.
 
@@ -2070,7 +2070,7 @@ This is a faster but less safe version of `utf8::prior`. It does not check for v
 <!-- TOC --><a name="utf8uncheckedprior16"></a>
 #### utf8::unchecked::prior16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Given a reference to an iterator pointing to a word in a UTF-16 sequence, it decreases the iterator until it hits the beginning of the previous UTF-16 encoded code point and returns the 32 bit representation of the code point.
 
@@ -2123,7 +2123,7 @@ This is a faster but less safe version of `utf8::advance`. It does not check for
 <!-- TOC --><a name="utf8uncheckedadvance16"></a>
 #### utf8::unchecked::advance16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Advances an iterator by the specified number of code points within a UTF-16 sequence.
 
@@ -2178,7 +2178,7 @@ This is a faster but less safe version of `utf8::distance`. It does not check fo
 <!-- TOC --><a name="utf8uncheckeddistance16"></a>
 #### utf8::unchecked::distance16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Given the iterators to two UTF-16 encoded code points in a sequence, returns the number of code points between them.
 
@@ -2358,7 +2358,7 @@ Unlike `utf8::replace_invalid`, this function does not verify validity of the re
 <!-- TOC --><a name="utf8uncheckedreplace_invalid16"></a>
 #### utf8::unchecked::replace_invalid16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Replaces all invalid UTF-16 sequences within a string with a replacement marker.
 
@@ -2456,7 +2456,7 @@ This is an unchecked version of `utf8::iterator`. It is faster in many cases, bu
 <!-- TOC --><a name="utf8iterator16-1"></a>
 #### utf8::unchecked::iterator16
 
-Available in version 4.3 and later.
+Available in version 5.0 and later.
 
 Adapts the underlying UTF-16 word iterator to iterate over code points, rather than raw words.
 

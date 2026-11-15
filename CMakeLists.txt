@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.14...3.27)
 project (utf8cpp 
-         VERSION 4.2.1
+         VERSION 5.0.0
          LANGUAGES CXX
          DESCRIPTION "C++ portable library for working with utf-8 encoding")
 

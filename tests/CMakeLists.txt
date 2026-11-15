@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.14...3.27)
 project(utfcpptests LANGUAGES CXX)
 enable_testing()
 
