@@ -19,6 +19,7 @@ I came up with a small, C++98 compatible generic library in order to handle UTF-
     + [Introductory Sample](#introductory-sample)
     + [Checking if a file contains valid UTF-8 text](#checking-if-a-file-contains-valid-utf-8-text)
     + [Ensure that a string contains valid UTF-8 text](#ensure-that-a-string-contains-valid-utf-8-text)
+    + [Truncate a UTF-8 string by code-point count](#truncate-a-utf-8-string-by-code-point-count)
   * [Points of interest](#points-of-interest)
   * [Reference](API_REFERENCE.md)
 
@@ -173,6 +174,42 @@ void fix_utf8_string(std::string& str)
 
 The function will replace any invalid UTF-8 sequence with a Unicode replacement character. There is an overloaded function that enables the caller to supply their own replacement character.
 
+
+<!-- TOC --><a name="truncate-a-utf-8-string-by-code-point-count"></a>
+### Truncate a UTF-8 string by code-point count
+
+For valid UTF-8 text, use `utf8::next` to find the end of a prefix without
+splitting a multibyte encoding. Stop at the end of the string when it contains
+fewer code points than the requested non-negative limit:
+
+```cpp
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include "utf8.h"
+
+void truncate_utf8(std::string& text, std::size_t limit)
+{
+    std::string::iterator it = text.begin();
+    for (std::size_t count = 0; count < limit && it != text.end(); ++count)
+        utf8::next(it, text.end());
+    text.erase(it, text.end());
+}
+
+int main()
+{
+    std::string text = "a\xc3\xa9\xf0\x9f\x98\x80z"; // a, é, 😀, z
+    truncate_utf8(text, 2);
+    std::cout << text << '\n'; // prints aé
+}
+```
+
+A zero limit clears the string; a limit at least its code-point count leaves
+it unchanged. This counts Unicode code points, not grapheme clusters or display
+columns, so it can separate a combining mark from its base character.
+The checked `utf8::next` throws if it encounters invalid UTF-8 before the cutoff,
+leaving the string unchanged. The discarded suffix is not validated; use
+`utf8::is_valid` first if the entire input must be checked.
 
 <!-- TOC --><a name="points-of-interest"></a>
 ## Points of interest
